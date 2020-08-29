@@ -35,7 +35,9 @@ func toget(s, end, id int) {
 	}
 	for i := start + a + 1; i <= start+end; i++ {
 		u := get.Getinfo(strconv.Itoa(i))
-		sql.Saveuserinfo(u, i)
+		if u.Variables.Space.Username != "" && u.Variables.Space.Extcredits1 != "" {
+			sql.Saveuserinfo(u, i)
+		}
 		sql.Sqlup(i, id)
 		log.Println(u.Variables.Space.Username, i, u.Variables.Space.Credits)
 		time.Sleep(500 * time.Millisecond)
