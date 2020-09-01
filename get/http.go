@@ -36,7 +36,38 @@ func h(uid string) ([]byte, error) {
 }
 
 func json2userinfo(b []byte) (Userinfo, error) {
-	u := Userinfo{}
+	u := Userinfo{
+		Variables: variables{
+			Space: space{
+				Adminid:      "0",
+				Allowadmincp: "0",
+				Avatarstatus: "0",
+				Blacklist:    "0",
+				Credits:      "0",
+				Digestposts:  "0",
+				Emailstatus:  "0",
+				Extcredits1:  "0",
+				Extcredits2:  "0",
+				Extcredits3:  "0",
+				Extcredits4:  "0",
+				Extcredits5:  "0",
+				Extcredits6:  "0",
+				Extcredits7:  "0",
+				Extcredits8:  "0",
+				Extgroupids:  "0",
+				Friends:      "0",
+				Groupid:      "0",
+				Lastvisit:    "0",
+				Oltime:       "0",
+				Posts:        "0",
+				Threads:      "0",
+				UID:          "0",
+				Username:     "0",
+				Views:        "0",
+				Medals:       nil,
+			},
+		},
+	}
 	err := json.Unmarshal(b, &u)
 	if err != nil {
 		return u, err
