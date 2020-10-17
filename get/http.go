@@ -1,8 +1,10 @@
 package get
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,6 +19,7 @@ func h(uid string) ([]byte, error) {
 		return nil, err
 	}
 	reqs.Header.Set("Accept", "*/*")
+	reqs.Header.Set("Accept-Encoding", "gzip")
 	reqs.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
 	rep, err := c.Do(reqs)
 	if rep != nil {
@@ -28,7 +31,18 @@ func h(uid string) ([]byte, error) {
 	if rep.StatusCode != http.StatusOK {
 		return nil, errors.New(rep.Status)
 	}
-	b, err := ioutil.ReadAll(rep.Body)
+	var reader io.ReadCloser
+	switch rep.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(rep.Body)
+		if err != nil {
+			return nil, err
+		}
+		defer reader.Close()
+	default:
+		reader = rep.Body
+	}
+	b, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
