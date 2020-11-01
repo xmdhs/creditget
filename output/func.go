@@ -10,11 +10,12 @@ import (
 
 func Sqlget(key string, limit int) string {
 	sw := strings.Builder{}
-	stmt, err := db.Prepare(`SELECT * FROM MCBBS ORDER BY ? DESC LIMIT ?`)
+	stmt, err := db.Prepare(`SELECT * FROM MCBBS ORDER BY ` + key + ` DESC LIMIT ?`)
+	defer stmt.Close()
 	if err != nil {
 		panic(err)
 	}
-	rows, err := stmt.Query(key, limit)
+	rows, err := stmt.Query(limit)
 	defer rows.Close()
 	sw.WriteString("| 排名 | uid | 用户名 | 积分 | 人气 | 金粒 | 金锭 | 绿宝石 | 下界之星 | 贡献 | 爱心 | 钻石 | 勋章数 | 精华数 | 设置黑名单数 | 在线时间 | 回帖数 | 主题数 | 好友数 | 空间查看次数 | 用户组 | 扩展用户组 | 上次访问时间 |\n")
 	sw.WriteString("| - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - |\n")
@@ -117,14 +118,16 @@ func GenAll() {
 	for k, v := range gendata {
 		s := Sqlget(k, 100)
 		f, err := os.Create(v + ".md")
-		defer f.Close()
 		if err != nil {
+			f.Close()
 			panic(err)
 		}
 		_, err = f.WriteString(s)
 		if err != nil {
+			f.Close()
 			panic(err)
 		}
+		f.Close()
 	}
 	f, err := os.Create(`组人数统计（不精准）.txt`)
 	defer f.Close()
@@ -159,7 +162,7 @@ func getGroupSum() map[string]int {
 	}
 	m := make(map[string]int, 0)
 	for _, v := range list {
-		rows := db.QueryRow("SELECT COUNT(UID) FROM mcbbs WHERE groupname =\"" + v + "\" OR extgroupids LIKE '%" + v + "%';")
+		rows := db.QueryRow("SELECT COUNT(UID) FROM mcbbs WHERE groupname ='" + v + "' OR extgroupids LIKE '%" + v + "%';")
 		if err != nil {
 			panic(err)
 		}
