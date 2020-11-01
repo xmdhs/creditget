@@ -3,7 +3,7 @@ package get
 import (
 	"compress/gzip"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,7 +16,7 @@ var c = http.Client{Timeout: 5 * time.Second}
 func h(uid string) ([]byte, error) {
 	reqs, err := http.NewRequest("GET", `https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=`+uid, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("h: %w", err)
 	}
 	reqs.Header.Set("Accept", "*/*")
 	reqs.Header.Set("Accept-Encoding", "gzip")
@@ -26,17 +26,17 @@ func h(uid string) ([]byte, error) {
 		defer rep.Body.Close()
 	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("h: %w", err)
 	}
 	if rep.StatusCode != http.StatusOK {
-		return nil, errors.New(rep.Status)
+		return nil, Not200{rep.Status}
 	}
 	var reader io.ReadCloser
 	switch rep.Header.Get("Content-Encoding") {
 	case "gzip":
 		reader, err = gzip.NewReader(rep.Body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("h: %w", err)
 		}
 		defer reader.Close()
 	default:
@@ -44,9 +44,17 @@ func h(uid string) ([]byte, error) {
 	}
 	b, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("h: %w", err)
 	}
 	return b, nil
+}
+
+type Not200 struct {
+	msg string
+}
+
+func (n Not200) Error() string {
+	return "not 200 :" + n.msg
 }
 
 func json2userinfo(b []byte) (Userinfo, error) {
