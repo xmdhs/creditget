@@ -80,7 +80,6 @@ func json2userinfo(b []byte) (Userinfo, error) {
 				Extcredits8:  "0",
 				Extgroupids:  "0",
 				Friends:      "0",
-				Groupid:      "0",
 				Lastvisit:    "0",
 				Oltime:       "0",
 				Posts:        "0",

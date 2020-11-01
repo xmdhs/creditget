@@ -2,11 +2,13 @@ package main
 
 import (
 	"log"
+	"os"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/xmdhs/creditget/get"
+	"github.com/xmdhs/creditget/output"
 	"github.com/xmdhs/creditget/sql"
 )
 
@@ -20,12 +22,16 @@ const (
 var w sync.WaitGroup
 
 func main() {
-	a := end / thread
-	for i := 0; i < thread; i++ {
-		w.Add(1)
-		go toget(start+a*i, start+a*(i+1), i)
+	if len(os.Args) != 1 {
+		output.GenAll()
+	} else {
+		a := end / thread
+		for i := 0; i < thread; i++ {
+			w.Add(1)
+			go toget(start+a*i, start+a*(i+1), i)
+		}
+		w.Wait()
 	}
-	w.Wait()
 }
 
 func toget(s, end, id int) {

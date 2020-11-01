@@ -16,9 +16,9 @@ func init() {
 		panic(err)
 	}
 	_, err = db.Exec(
-		"CREATE TABLE 		IF NOT EXISTS MCBBS " +
+		"CREATE TABLE		IF NOT EXISTS MCBBS " +
 			"(UID			INT	PRIMARY	KEY	NOT	NULL," +
-			"NAME			TEX NOT NULL," +
+			"NAME			TEXT NOT NULL," +
 			"credits		INT	NOT NULL," +
 			"extcredits1 	INT	NOT	NULL," +
 			"extcredits2 	INT	NOT	NULL," +
@@ -29,7 +29,7 @@ func init() {
 			"extcredits7 	INT	NOT	NULL," +
 			"extcredits8 	INT	NOT	NULL," +
 			"oltime			INT	NOT	NULL," +
-			"groupid		INT	NOT	NULL," +
+			"groupname		TEXT	NOT	NULL," +
 			"posts			INT	NOT	NULL," +
 			"threads		INT	NOT	NULL," +
 			"friends		INT	NOT	NULL," +
@@ -39,7 +39,7 @@ func init() {
 			"digestposts	INT	NOT	NULL," +
 			"blacklist		INT	NOT	NULL," +
 			"emailstatus	INT	NOT	NULL," +
-			"lastvisit		TEXT	NOT	NULL," +
+			"lastactivitydb	INT	NOT	NULL," +
 			"Avatarstatus	INT	NOT	NULL," +
 			"Allowadmincp	INT	NOT	NULL," +
 			"extgroupids 	TEXT NOT	NULL)")

@@ -54,7 +54,7 @@ func Saveuserinfo(u get.Userinfo, uid int) {
 		u.Variables.Space.Extcredits7,
 		u.Variables.Space.Extcredits8,
 		u.Variables.Space.Oltime,
-		u.Variables.Space.Groupid,
+		u.Variables.Space.Group.Grouptitle,
 		u.Variables.Space.Posts,
 		u.Variables.Space.Threads,
 		u.Variables.Space.Friends,

@@ -26,8 +26,7 @@ type space struct {
 	Extcredits8  string      `json:"extcredits8"`
 	Extgroupids  string      `json:"extgroupids"`
 	Friends      string      `json:"friends"`
-	Groupid      string      `json:"groupid"`
-	Lastvisit    string      `json:"lastvisit"`
+	Lastvisit    string      `json:"lastactivitydb"`
 	Oltime       string      `json:"oltime"`
 	Posts        string      `json:"posts"`
 	Threads      string      `json:"threads"`
@@ -35,4 +34,9 @@ type space struct {
 	Username     string      `json:"username"`
 	Views        string      `json:"views"`
 	Medals       interface{} `json:"medals"`
+	Group        group       `json:"group"`
+}
+
+type group struct {
+	Grouptitle string `json:"grouptitle"`
 }
