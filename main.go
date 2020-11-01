@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	start  = 0
+	start = 0
+	// api/mobile/index.php?version=4&module=check 可获取论坛总人数
 	end    = 3600000
 	thread = 8
 )
