@@ -13,8 +13,10 @@ import (
 
 var c = http.Client{Timeout: 5 * time.Second}
 
+const profileAPI = `https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=`
+
 func h(uid string) ([]byte, error) {
-	reqs, err := http.NewRequest("GET", `https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=`+uid, nil)
+	reqs, err := http.NewRequest("GET", profileAPI+uid, nil)
 	if err != nil {
 		return nil, fmt.Errorf("h: %w", err)
 	}
