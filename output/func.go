@@ -18,7 +18,7 @@ func Sqlget(key string, limit int) string {
 	rows, err := stmt.Query(limit)
 	defer rows.Close()
 	sw.WriteString("| 排名 | uid | 用户名 | 积分 | 人气 | 金粒 | 金锭 | 绿宝石 | 下界之星 | 贡献 | 爱心 | 钻石 | 勋章数 | 精华数 | 设置黑名单数 | 在线时间 | 回帖数 | 主题数 | 好友数 | 空间查看次数 | 用户组 | 扩展用户组 | 上次访问时间 |\n")
-	sw.WriteString("| - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - |\n")
+	sw.WriteString("| - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - |\n")
 	u := rowsget(rows)
 	for i, v := range u {
 		i++
