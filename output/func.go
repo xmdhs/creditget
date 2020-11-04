@@ -6,11 +6,18 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
-func Sqlget(key string, limit int) string {
+func Sqlget(key string, limit int, desc bool) string {
 	sw := strings.Builder{}
-	stmt, err := db.Prepare(`SELECT * FROM MCBBS ORDER BY ` + key + ` DESC LIMIT ?`)
+	var word string
+	if desc {
+		word = "DESC"
+	} else {
+		word = "ASC"
+	}
+	stmt, err := db.Prepare(`SELECT * FROM MCBBS ORDER BY ` + key + ` ` + word + ` LIMIT ?`)
 	defer stmt.Close()
 	if err != nil {
 		panic(err)
@@ -114,20 +121,36 @@ var gendata = map[string]string{
 }
 
 func GenAll() {
+	wait := sync.WaitGroup{}
 	for k, v := range gendata {
-		s := Sqlget(k, 100)
-		f, err := os.Create(v + ".md")
-		if err != nil {
-			f.Close()
-			panic(err)
-		}
-		_, err = f.WriteString(s)
-		if err != nil {
-			f.Close()
-			panic(err)
-		}
-		f.Close()
+		wait.Add(1)
+		k, v := k, v
+		go func() {
+			for i := 0; i < 2; i++ {
+				ifdesc := false
+				if i == 0 {
+					ifdesc = true
+					v = v + "-降序"
+				} else {
+					v = v + "-升序"
+				}
+				s := Sqlget(k, 1000, ifdesc)
+				f, err := os.Create(v + ".md")
+				if err != nil {
+					f.Close()
+					panic(err)
+				}
+				_, err = f.WriteString(s)
+				if err != nil {
+					f.Close()
+					panic(err)
+				}
+				f.Close()
+			}
+			wait.Done()
+		}()
 	}
+	wait.Wait()
 	f, err := os.Create(`组人数统计（不精准）.txt`)
 	defer f.Close()
 	if err != nil {
