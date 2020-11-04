@@ -165,6 +165,12 @@ func GenAll() {
 			panic(err)
 		}
 	}
+	f, err = os.Create(`未设置头像和邮箱的总人数.txt`)
+	defer f.Close()
+	ec := getNotEmailsCount()
+	ac := getNotSetAvatarCount()
+	f.WriteString("未设置邮箱：" + strconv.Itoa(ec) + "\n")
+	f.WriteString("未设置头像：" + strconv.Itoa(ac) + "\n")
 }
 
 func getGroupSum() map[string]int {
@@ -184,7 +190,7 @@ func getGroupSum() map[string]int {
 	}
 	m := make(map[string]int, 0)
 	for _, v := range list {
-		rows := db.QueryRow("SELECT COUNT(UID) FROM mcbbs WHERE groupname ='" + v + "' OR extgroupids LIKE '%" + v + "%';")
+		rows := db.QueryRow("SELECT COUNT(*) FROM mcbbs WHERE groupname ='" + v + "' OR extgroupids LIKE '%" + v + "%';")
 		if err != nil {
 			panic(err)
 		}
@@ -196,4 +202,24 @@ func getGroupSum() map[string]int {
 		m[v] = i
 	}
 	return m
+}
+
+func getNotSetAvatarCount() int {
+	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE Avatarstatus = 0`)
+	i := 0
+	err := rows.Scan(&i)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
+
+func getNotEmailsCount() int {
+	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE emailstatus = 0`)
+	i := 0
+	err := rows.Scan(&i)
+	if err != nil {
+		panic(err)
+	}
+	return i
 }
