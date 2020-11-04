@@ -165,8 +165,8 @@ func GenAll() {
 			panic(err)
 		}
 	}
-	f, err = os.Create(`未设置头像和邮箱的总人数.txt`)
-	defer f.Close()
+	f2, err := os.Create(`未设置头像和邮箱的总人数.txt`)
+	defer f2.Close()
 	ec := getNotEmailsCount()
 	ac := getNotSetAvatarCount()
 	f.WriteString("未设置邮箱：" + strconv.Itoa(ec) + "\n")
