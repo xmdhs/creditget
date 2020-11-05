@@ -159,14 +159,14 @@ func GenAll() {
 			panic(err)
 		}
 	}
-	f2, err := os.Create(`未设置头像和邮箱还有零分的总人数.txt`)
+	f2, err := os.Create(`各种零.txt`)
 	defer f2.Close()
-	ec := GetNotEmailsSum()
-	ac := GetNotSetAvatarSum()
-	nilCredit := GetNilCreditsSum()
-	f2.WriteString("未设置邮箱：" + strconv.Itoa(ec) + "\n")
-	f2.WriteString("未设置头像：" + strconv.Itoa(ac) + "\n")
-	f2.WriteString("零分：" + strconv.Itoa(nilCredit) + "\n")
+	f2.WriteString("未设置邮箱：" + strconv.Itoa(GetNotEmailsSum()) + "\n")
+	f2.WriteString("未设置头像：" + strconv.Itoa(GetNotSetAvatarSum()) + "\n")
+	f2.WriteString("零分：" + strconv.Itoa(GetNilCreditsSum()) + "\n")
+	f2.WriteString("零发帖：" + strconv.Itoa(GetNilPosts()) + "\n")
+	f2.WriteString("零回帖：" + strconv.Itoa(GetNilThreads()) + "\n")
+	f2.WriteString("零在线时间：" + strconv.Itoa(GetNilOltime()) + "\n")
 }
 
 func GetGroupSum() map[string]int {
@@ -210,6 +210,18 @@ func GetNotEmailsSum() int {
 
 func GetNilCreditsSum() int {
 	return getNilSum(`credits`)
+}
+
+func GetNilPosts() int {
+	return getNilSum(`posts`)
+}
+
+func GetNilThreads() int {
+	return getNilSum(`threads`)
+}
+
+func GetNilOltime() int {
+	return getNilSum(`oltime`)
 }
 
 func getNilSum(name string) int {
