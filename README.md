@@ -43,6 +43,6 @@ extcredits1 等和积分名字的对应关系可来形如 https://www.mcbbs.net/
 
 形如 https://www.mcbbs.net/api/mobile/index.php?version=4&module=check 中的 `totalmembers` 数值为论坛总人数。
 
-然后直接执行程序即可爬取，爬取完成后会自动退出。中途若意外退出，可按上次的进度继续爬取。
+然后直接执行程序即可爬取，爬取完成后会自动退出。中途若意外退出，再次运行可按上次的进度继续爬取。
 
 执行时带上任意参数即可生成展示表格，如 `./main a`
