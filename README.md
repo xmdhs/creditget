@@ -41,7 +41,7 @@ extcredits1 等和积分名字的对应关系可来形如 https://www.mcbbs.net/
         "extcredits3": "金锭"
     }
 
-形如 https://www.mcbbs.net/api/mobile/index.php?version=4&module=check 中的 totalmembers 数值为论坛总人数。
+形如 https://www.mcbbs.net/api/mobile/index.php?version=4&module=check 中的 `totalmembers` 数值为论坛总人数。
 
 然后直接执行程序即可爬取，爬取完成后会自动退出。中途若意外退出，可按上次的进度继续爬取。
 
