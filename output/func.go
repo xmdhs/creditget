@@ -128,14 +128,15 @@ func GenAll() {
 		go func() {
 			for i := 0; i < 2; i++ {
 				ifdesc := false
+				var filename string
 				if i == 0 {
 					ifdesc = true
-					v = v + "-降序"
+					filename = v + "-降序"
 				} else {
-					v = v + "-升序"
+					filename = v + "-升序"
 				}
 				s := Sqlget(k, 1000, ifdesc)
-				f, err := os.Create(v + ".md")
+				f, err := os.Create(filename + ".md")
 				if err != nil {
 					f.Close()
 					panic(err)
@@ -156,7 +157,7 @@ func GenAll() {
 	if err != nil {
 		panic(err)
 	}
-	m := getGroupSum()
+	m := GetGroupSum()
 	bf := bufio.NewWriter(f)
 	defer bf.Flush()
 	for k, v := range m {
@@ -165,15 +166,17 @@ func GenAll() {
 			panic(err)
 		}
 	}
-	f2, err := os.Create(`未设置头像和邮箱的总人数.txt`)
+	f2, err := os.Create(`未设置头像和邮箱还有零分的总人数.txt`)
 	defer f2.Close()
-	ec := getNotEmailsCount()
-	ac := getNotSetAvatarCount()
-	f.WriteString("未设置邮箱：" + strconv.Itoa(ec) + "\n")
-	f.WriteString("未设置头像：" + strconv.Itoa(ac) + "\n")
+	ec := GetNotEmailsSum()
+	ac := GetNotSetAvatarSum()
+	nilCredit := GetNilCreditsSum()
+	f2.WriteString("未设置邮箱：" + strconv.Itoa(ec) + "\n")
+	f2.WriteString("未设置头像：" + strconv.Itoa(ac) + "\n")
+	f2.WriteString("零分：" + strconv.Itoa(nilCredit) + "\n")
 }
 
-func getGroupSum() map[string]int {
+func GetGroupSum() map[string]int {
 	rows, err := db.Query(`SELECT DISTINCT groupname FROM MCBBS`)
 	defer rows.Close()
 	if err != nil {
@@ -204,18 +207,20 @@ func getGroupSum() map[string]int {
 	return m
 }
 
-func getNotSetAvatarCount() int {
-	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE Avatarstatus = 0`)
-	i := 0
-	err := rows.Scan(&i)
-	if err != nil {
-		panic(err)
-	}
-	return i
+func GetNotSetAvatarSum() int {
+	return getNilSum(`Avatarstatus`)
 }
 
-func getNotEmailsCount() int {
-	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE emailstatus = 0`)
+func GetNotEmailsSum() int {
+	return getNilSum(`emailstatus`)
+}
+
+func GetNilCreditsSum() int {
+	return getNilSum(`credits`)
+}
+
+func getNilSum(name string) int {
+	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE ` + name + ` = 0`)
 	i := 0
 	err := rows.Scan(&i)
 	if err != nil {
