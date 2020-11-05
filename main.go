@@ -16,9 +16,10 @@ import (
 
 var (
 	// api/mobile/index.php?version=4&module=check 可获取论坛总人数
-	start  int
-	end    int
-	thread int
+	start     int
+	end       int
+	thread    int
+	sleepTime int = 500
 )
 
 var w sync.WaitGroup
@@ -47,7 +48,7 @@ func toget(s, end, id int) {
 		sql.Saveuserinfo(u, i)
 		sql.Sqlup(i, id)
 		log.Println(u.Variables.Space.Username, i, u.Variables.Space.Credits)
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 	}
 	w.Done()
 }
@@ -74,6 +75,7 @@ func readConfig() {
 	start = int(config["start"].(float64))
 	end = int(config["end"].(float64))
 	thread = int(config["thread"].(float64))
+	sleepTime = int(config["sleepTime"].(float64))
 	get.ProfileAPI = config["disucuzApiAddress"].(string)
 	for _, k := range output.Extcredits {
 		if v, ok := config[k]; ok {

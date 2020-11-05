@@ -2,6 +2,7 @@
     "start": 0,
     "end": 3709554,
     "thread": 8,
+    "sleepTime" : 500,
     "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=",
     "extcredits1": "人气",
     "extcredits2": "金粒",
