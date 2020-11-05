@@ -29,6 +29,7 @@ extcredits1 等和积分名字的对应关系可来形如 https://www.mcbbs.net/
 未使用的 extcredits 可直接删除这个字段。
 
 如
+
     {
         "start": 0, 
         "end": 3709554, 
