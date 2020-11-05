@@ -159,8 +159,12 @@ func GenAll() {
 			panic(err)
 		}
 	}
-	f2, err := os.Create(`各种零.txt`)
-	defer f2.Close()
+	f3, err := os.Create(`一些统计.txt`)
+	defer f3.Close()
+	f2 := bufio.NewWriter(f3)
+	defer f2.Flush()
+	f2.WriteString("有效账号/总爬取账号：" + strconv.Itoa(GetAvailableUserSum()) + "/" + strconv.Itoa(GetSum()) + "\n")
+	f2.WriteString("\n以下数据均为去除无效账号后的\n")
 	f2.WriteString("未设置邮箱：" + strconv.Itoa(GetNotEmailsSum()) + "\n")
 	f2.WriteString("未设置头像：" + strconv.Itoa(GetNotSetAvatarSum()) + "\n")
 	f2.WriteString("零分：" + strconv.Itoa(GetNilCreditsSum()) + "\n")
@@ -225,7 +229,27 @@ func GetNilOltime() int {
 }
 
 func getNilSum(name string) int {
-	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE ` + name + ` = 0`)
+	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE ` + name + ` = 0 AND NOT lastactivitydb = 0`)
+	i := 0
+	err := rows.Scan(&i)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
+
+func GetSum() int {
+	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs`)
+	i := 0
+	err := rows.Scan(&i)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
+
+func GetAvailableUserSum() int {
+	rows := db.QueryRow(`SELECT COUNT(*) FROM mcbbs WHERE NOT lastactivitydb = 0`)
 	i := 0
 	err := rows.Scan(&i)
 	if err != nil {
