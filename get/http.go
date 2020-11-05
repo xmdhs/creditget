@@ -93,7 +93,7 @@ func json2userinfo(b []byte) (Userinfo, error) {
 	}
 	err := json.Unmarshal(b, &u)
 	if err != nil {
-		return u, err
+		return u, fmt.Errorf("json2userinfo: %w", err)
 	}
 	return u, nil
 }
@@ -102,13 +102,13 @@ func Getinfo(uid string) Userinfo {
 	for {
 		b, err := h(uid)
 		if err != nil {
-			log.Println(err)
+			log.Println(err, uid)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 		u, err := json2userinfo(b)
 		if err != nil {
-			log.Println(err)
+			log.Println(err, uid)
 			time.Sleep(5 * time.Second)
 			continue
 		}
