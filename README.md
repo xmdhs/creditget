@@ -8,37 +8,37 @@ discuz 通用论坛用户积分爬取。
 ## 使用
 编译后，复制项目内的 config.json，修改其中的各项配置。
 
-`{
-    "start": 0, //起始 uid 左闭右开
-    "end": 3709554, //结束 uid 
-    "thread": 8, //使用的协程数
-    "sleepTime" : 500, //某个协程爬取一次后睡眠多少毫秒
-    "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=", // api 地址
-    "extcredits1": "人气",
-    "extcredits2": "金粒",
-    "extcredits3": "金锭", 
-    "extcredits4": "绿宝石", 
-    "extcredits5": "下界之星",
-    "extcredits6": "贡献",
-    "extcredits7": "爱心",
-    "extcredits8": "钻石"
-}`
+    {
+        "start": 0, //起始 uid 左闭右开
+        "end": 3709554, //结束 uid 
+        "thread": 8, //使用的协程数
+        "sleepTime" : 500, //某个协程爬取一次后睡眠多少毫秒
+        "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=", // api 地址
+        "extcredits1": "人气",
+        "extcredits2": "金粒",
+        "extcredits3": "金锭", 
+        "extcredits4": "绿宝石", 
+        "extcredits5": "下界之星",
+        "extcredits6": "贡献",
+        "extcredits7": "爱心",
+        "extcredits8": "钻石"
+    }
 
 extcredits1 等和积分名字的对应关系可来形如 https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=1 底部查看
 
 未使用的 extcredits 可直接删除这个字段。
 
 如
-`{
-    "start": 0, 
-    "end": 3709554, 
-    "thread": 8, 
-    "sleepTime" : 500, 
-    "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=",
-    "extcredits1": "人气",
-    "extcredits2": "金粒",
-    "extcredits3": "金锭"
-}`
+    {
+        "start": 0, 
+        "end": 3709554, 
+        "thread": 8, 
+        "sleepTime" : 500, 
+        "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=",
+        "extcredits1": "人气",
+        "extcredits2": "金粒",
+        "extcredits3": "金锭"
+    }
 
 形如 https://www.mcbbs.net/api/mobile/index.php?version=4&module=check 中的 totalmembers 数值为论坛总人数。
 
