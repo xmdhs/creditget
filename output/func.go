@@ -24,8 +24,9 @@ func Sqlget(key string, limit int, desc bool) string {
 	}
 	rows, err := stmt.Query(limit)
 	defer rows.Close()
-	sw.WriteString("| 排名 | uid | 用户名 | 积分 | 人气 | 金粒 | 金锭 | 绿宝石 | 下界之星 | 贡献 | 爱心 | 钻石 | 勋章数 | 精华数 | 设置黑名单数 | 在线时间 | 回帖数 | 主题数 | 好友数 | 空间查看次数 | 用户组 | 扩展用户组 | 上次访问时间 |\n")
-	sw.WriteString("| - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - |\n")
+	text, i := setTableName()
+	sw.WriteString(text)
+	sw.WriteString(genSeparate(i))
 	u := rowsget(rows)
 	for i, v := range u {
 		i++
@@ -33,14 +34,14 @@ func Sqlget(key string, limit int, desc bool) string {
 		sw.WriteString(v.UID + " | ")
 		sw.WriteString(v.Username + " | ")
 		sw.WriteString(v.Credits + " | ")
-		sw.WriteString(v.Extcredits1 + " | ")
-		sw.WriteString(v.Extcredits2 + " | ")
-		sw.WriteString(v.Extcredits3 + " | ")
-		sw.WriteString(v.Extcredits4 + " | ")
-		sw.WriteString(v.Extcredits5 + " | ")
-		sw.WriteString(v.Extcredits6 + " | ")
-		sw.WriteString(v.Extcredits7 + " | ")
-		sw.WriteString(v.Extcredits8 + " | ")
+		sw.WriteString(genTableValue("extcredits1", v.Extcredits1))
+		sw.WriteString(genTableValue("extcredits2", v.Extcredits2))
+		sw.WriteString(genTableValue("extcredits3", v.Extcredits3))
+		sw.WriteString(genTableValue("extcredits4", v.Extcredits4))
+		sw.WriteString(genTableValue("extcredits5", v.Extcredits5))
+		sw.WriteString(genTableValue("extcredits6", v.Extcredits6))
+		sw.WriteString(genTableValue("extcredits7", v.Extcredits7))
+		sw.WriteString(genTableValue("extcredits8", v.Extcredits8))
 		sw.WriteString(strconv.Itoa(v.Medals) + " | ")
 		sw.WriteString(v.Digestposts + " | ")
 		sw.WriteString(v.Blacklist + " | ")
@@ -100,16 +101,8 @@ type userdata struct {
 	Group        string
 }
 
-var gendata = map[string]string{
+var Gendata = map[string]string{
 	"credits":     "总积分",
-	"extcredits1": "人气",
-	"extcredits2": "金粒",
-	"extcredits3": "金锭",
-	"extcredits4": "绿宝石",
-	"extcredits5": "下界之星",
-	"extcredits6": "贡献",
-	"extcredits7": "爱心",
-	"extcredits8": "钻石",
 	"oltime":      "在线时间",
 	"posts":       "回帖数",
 	"threads":     "主题数",
@@ -122,36 +115,36 @@ var gendata = map[string]string{
 
 func GenAll() {
 	wait := sync.WaitGroup{}
-	for k, v := range gendata {
+	for k, v := range Gendata {
 		wait.Add(1)
 		k, v := k, v
 		go func() {
-			for i := 0; i < 2; i++ {
-				ifdesc := false
-				var filename string
-				if i == 0 {
-					ifdesc = true
-					filename = v + "-降序"
-				} else {
-					filename = v + "-升序"
-				}
-				s := Sqlget(k, 1000, ifdesc)
-				f, err := os.Create(filename + ".md")
-				if err != nil {
-					f.Close()
-					panic(err)
-				}
-				_, err = f.WriteString(s)
-				if err != nil {
-					f.Close()
-					panic(err)
-				}
+			s := Sqlget(k, 1000, true)
+			f, err := os.Create(v + ".md")
+			if err != nil {
 				f.Close()
+				panic(err)
 			}
+			_, err = f.WriteString(s)
+			if err != nil {
+				f.Close()
+				panic(err)
+			}
+			f.Close()
 			wait.Done()
 		}()
 	}
 	wait.Wait()
+	f1, err := os.Create(`分积总.md`)
+	defer f1.Close()
+	if err != nil {
+		panic(err)
+	}
+	s := Sqlget("credits", 1000, false)
+	_, err = f1.WriteString(s)
+	if err != nil {
+		panic(err)
+	}
 	f, err := os.Create(`组人数统计（不精准）.txt`)
 	defer f.Close()
 	if err != nil {

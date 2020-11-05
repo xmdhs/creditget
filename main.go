@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -12,11 +14,11 @@ import (
 	"github.com/xmdhs/creditget/sql"
 )
 
-const (
-	start = 0
+var (
 	// api/mobile/index.php?version=4&module=check 可获取论坛总人数
-	end    = 3709554
-	thread = 8
+	start  int
+	end    int
+	thread int
 )
 
 var w sync.WaitGroup
@@ -48,4 +50,34 @@ func toget(s, end, id int) {
 		time.Sleep(500 * time.Millisecond)
 	}
 	w.Done()
+}
+
+func init() {
+	readConfig()
+}
+
+func readConfig() {
+	config := make(map[string]interface{}, 0)
+	f, err := os.Open(`config.json`)
+	defer f.Close()
+	if err != nil {
+		panic(err)
+	}
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(b, &config)
+	if err != nil {
+		panic(err)
+	}
+	start = int(config["start"].(float64))
+	end = int(config["end"].(float64))
+	thread = int(config["thread"].(float64))
+	get.ProfileAPI = config["disucuzApiAddress"].(string)
+	for _, k := range output.Extcredits {
+		if v, ok := config[k]; ok {
+			output.Gendata[k] = v.(string)
+		}
+	}
 }
