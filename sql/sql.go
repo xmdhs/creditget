@@ -1,8 +1,10 @@
 package sql
 
 import (
+	"errors"
 	"log"
 
+	"github.com/mattn/go-sqlite3"
 	"github.com/xmdhs/creditget/get"
 )
 
@@ -35,7 +37,11 @@ func Sqlup(s, id int) {
 func Sqlinsert(id, start int) {
 	_, err := db.Exec("INSERT INTO config VALUES (?,?)", id, start)
 	if err != nil {
-		log.Println(err)
+		if errors.Is(err, sqlite3.ErrConstraint) {
+			log.Println(err)
+			return
+		}
+		panic(err)
 	}
 
 }
@@ -70,6 +76,10 @@ func Saveuserinfo(u get.Userinfo, uid int) {
 		u.Variables.Space.Extgroupids,
 	)
 	if err != nil {
+		if errors.Is(err, sqlite3.ErrConstraint) {
+			log.Println(err)
+			return
+		}
 		panic(err)
 	}
 }
