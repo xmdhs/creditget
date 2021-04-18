@@ -18,11 +18,14 @@ func Sqlget(key string, limit int, desc bool) string {
 		word = "ASC"
 	}
 	stmt, err := db.Prepare(`SELECT * FROM MCBBS ORDER BY ` + key + ` ` + word + ` LIMIT ?`)
-	defer stmt.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer stmt.Close()
 	rows, err := stmt.Query(limit)
+	if err != nil {
+		panic(err)
+	}
 	defer rows.Close()
 	text, i := setTableName()
 	sw.WriteString(text)
@@ -136,41 +139,44 @@ func GenAll() {
 	}
 	wait.Wait()
 	f1, err := os.Create(`分积总.md`)
-	defer f1.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer f1.Close()
 	s := Sqlget("credits", 1000, false)
 	_, err = f1.WriteString(s)
 	if err != nil {
 		panic(err)
 	}
 	f, err := os.Create(`组人数统计（不精准）.txt`)
-	defer f.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 	m := GetGroupSum()
 	bf := bufio.NewWriter(f)
 	defer bf.Flush()
 	for k, v := range m {
-		_, err := bf.WriteString(k + ": " + strconv.Itoa(v) + "\n")
+		_, err := bf.WriteString(k + ": " + strconv.Itoa(v) + "  \n")
 		if err != nil {
 			panic(err)
 		}
 	}
 	f3, err := os.Create(`一些统计.txt`)
+	if err != nil {
+		panic(err)
+	}
 	defer f3.Close()
 	f2 := bufio.NewWriter(f3)
 	defer f2.Flush()
-	f2.WriteString("有效账号/总爬取账号：" + strconv.Itoa(GetAvailableUserSum()) + "/" + strconv.Itoa(GetSum()) + "\n")
+	f2.WriteString("有效账号/总爬取账号：" + strconv.Itoa(GetAvailableUserSum()) + "/" + strconv.Itoa(GetSum()) + "  \n")
 	f2.WriteString("\n以下数据均为去除无效账号后的\n")
-	f2.WriteString("未设置邮箱：" + strconv.Itoa(GetNotEmailsSum()) + "\n")
-	f2.WriteString("未设置头像：" + strconv.Itoa(GetNotSetAvatarSum()) + "\n")
-	f2.WriteString("零分：" + strconv.Itoa(GetNilCreditsSum()) + "\n")
-	f2.WriteString("零发帖：" + strconv.Itoa(GetNilPosts()) + "\n")
-	f2.WriteString("零回帖：" + strconv.Itoa(GetNilThreads()) + "\n")
-	f2.WriteString("零在线时间：" + strconv.Itoa(GetNilOltime()) + "\n")
+	f2.WriteString("未设置邮箱：" + strconv.Itoa(GetNotEmailsSum()) + "  \n")
+	f2.WriteString("未设置头像：" + strconv.Itoa(GetNotSetAvatarSum()) + "  \n")
+	f2.WriteString("零分：" + strconv.Itoa(GetNilCreditsSum()) + "  \n")
+	f2.WriteString("零发帖：" + strconv.Itoa(GetNilPosts()) + "  \n")
+	f2.WriteString("零回帖：" + strconv.Itoa(GetNilThreads()) + "  \n")
+	f2.WriteString("零在线时间：" + strconv.Itoa(GetNilOltime()) + "  \n")
 }
 
 func GetGroupSum() map[string]int {
