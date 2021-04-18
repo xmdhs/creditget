@@ -39,7 +39,7 @@ func Sqlinsert(id, start int) {
 	if err != nil {
 		e := sqlite3.Error{}
 		if errors.As(err, &e) && e.Code == sqlite3.ErrConstraint {
-			log.Panicln(err)
+			log.Println(err)
 			return
 		}
 		panic(err)
@@ -78,7 +78,7 @@ func Saveuserinfo(u get.Userinfo, uid int) {
 	if err != nil {
 		e := sqlite3.Error{}
 		if errors.As(err, &e) && e.Code == sqlite3.ErrConstraint {
-			log.Panicln(err)
+			log.Println(err)
 			return
 		}
 		panic(err)
