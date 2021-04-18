@@ -25,7 +25,7 @@ func Sqlget(id int) int {
 	return fid
 }
 
-func Sqlup(s, id int) {
+func Sqlup(id, s int) {
 	stmt, err := db.Prepare("UPDATE config SET i = ? WHERE id = ?")
 	if err != nil {
 		panic(err)
