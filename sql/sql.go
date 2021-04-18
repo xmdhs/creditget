@@ -2,6 +2,7 @@ package sql
 
 import (
 	"errors"
+	"log"
 
 	"github.com/mattn/go-sqlite3"
 	"github.com/xmdhs/creditget/get"
@@ -38,10 +39,11 @@ func Sqlinsert(id, start int) {
 	if err != nil {
 		e := sqlite3.Error{}
 		if errors.As(err, &e) && e.Code == sqlite3.ErrConstraint {
-			panic(err)
+			log.Panicln(err)
+			return
 		}
+		panic(err)
 	}
-
 }
 
 func Saveuserinfo(u get.Userinfo, uid int) {
@@ -76,8 +78,10 @@ func Saveuserinfo(u get.Userinfo, uid int) {
 	if err != nil {
 		e := sqlite3.Error{}
 		if errors.As(err, &e) && e.Code == sqlite3.ErrConstraint {
-			panic(err)
+			log.Panicln(err)
+			return
 		}
+		panic(err)
 	}
 }
 
