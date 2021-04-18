@@ -9,6 +9,10 @@ import (
 
 var db *sql.DB
 
+func Getdb() *sql.DB {
+	return db
+}
+
 func init() {
 	var err error
 	db, err = sql.Open("sqlite3", "./credit.db")

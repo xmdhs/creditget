@@ -10,15 +10,15 @@ import (
 
 func Sqlget(id int) int {
 	stmt, err := db.Prepare(`SELECT i FROM config WHERE id = ?`)
+	if err != nil {
+		panic(err)
+	}
 	defer stmt.Close()
-	if err != nil {
-		panic(err)
-	}
 	rows, err := stmt.Query(id)
-	defer rows.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer rows.Close()
 	rows.Next()
 	var fid int
 	rows.Scan(&fid)
@@ -27,10 +27,10 @@ func Sqlget(id int) int {
 
 func Sqlup(s, id int) {
 	stmt, err := db.Prepare("UPDATE config SET i = ? WHERE id = ?")
-	defer stmt.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer stmt.Close()
 	stmt.Exec(s, id)
 }
 

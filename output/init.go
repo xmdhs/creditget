@@ -5,14 +5,11 @@ import (
 
 	//数据库驱动
 	_ "github.com/mattn/go-sqlite3"
+	asql "github.com/xmdhs/creditget/sql"
 )
 
 var db *sql.DB
 
 func init() {
-	var err error
-	db, err = sql.Open("sqlite3", "./credit.db")
-	if err != nil {
-		panic(err)
-	}
+	db = asql.Getdb()
 }

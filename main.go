@@ -22,35 +22,39 @@ var (
 	sleepTime int = 500
 )
 
-var w sync.WaitGroup
-
 func main() {
 	if len(os.Args) != 1 {
 		output.GenAll()
 	} else {
-		a := end / thread
-		for i := 0; i < thread; i++ {
-			w.Add(1)
-			go toget(start+a*i, start+a*(i+1), i)
+		var w sync.WaitGroup
+		i := sql.Sqlget(0)
+		if i < start {
+			i = start
 		}
-		w.Wait()
+		if i == 0 {
+			i = 1
+			sql.Sqlinsert(0, 1)
+		}
+		t := 0
+		for ; i < end; i++ {
+			w.Add(1)
+			go toget(i, &w)
+			t++
+			if t > thread {
+				w.Wait()
+				t = 0
+				sql.Sqlup(0, i)
+			}
+		}
 	}
 }
 
-func toget(s, end, id int) {
-	a := sql.Sqlget(id)
-	if a == 0 {
-		sql.Sqlinsert(id, a)
-		a = s
-	}
-	for i := start + a + 1; i <= start+end; i++ {
-		u := get.Getinfo(strconv.Itoa(i))
-		sql.Saveuserinfo(u, i)
-		sql.Sqlup(i, id)
-		log.Println(u.Variables.Space.Username, i, u.Variables.Space.Credits)
-		time.Sleep(time.Duration(sleepTime) * time.Millisecond)
-	}
-	w.Done()
+func toget(uid int, wait *sync.WaitGroup) {
+	u := get.Getinfo(strconv.Itoa(uid))
+	sql.Saveuserinfo(u, uid)
+	log.Println(u.Variables.Space.Username, uid, u.Variables.Space.Credits)
+	time.Sleep(time.Duration(sleepTime) * time.Millisecond)
+	wait.Done()
 }
 
 func init() {
