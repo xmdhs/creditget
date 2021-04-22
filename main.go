@@ -43,7 +43,7 @@ func main() {
 			if t > thread {
 				w.Wait()
 				t = 0
-				sql.Sqlup(0, i)
+				sql.Sqlup(0, i+1)
 			}
 		}
 	}
