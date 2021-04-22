@@ -28,12 +28,12 @@ func main() {
 	} else {
 		var w sync.WaitGroup
 		i := sql.Sqlget(0)
-		if i < start {
-			i = start
-		}
 		if i == 0 {
 			i = 1
 			sql.Sqlinsert(0, 1)
+		}
+		if i < start {
+			i = start
 		}
 		t := 0
 		for ; i < end; i++ {
@@ -64,10 +64,10 @@ func init() {
 func readConfig() {
 	config := make(map[string]interface{}, 0)
 	f, err := os.Open(`config.json`)
-	defer f.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
 		panic(err)
