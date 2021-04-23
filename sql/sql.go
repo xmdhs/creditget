@@ -3,6 +3,7 @@ package sql
 import (
 	"errors"
 	"log"
+	"time"
 
 	"github.com/mattn/go-sqlite3"
 	"github.com/xmdhs/creditget/get"
@@ -38,9 +39,17 @@ func Sqlinsert(id, start int) {
 	_, err := db.Exec("INSERT INTO config VALUES (?,?)", id, start)
 	if err != nil {
 		e := sqlite3.Error{}
-		if errors.As(err, &e) && e.Code == sqlite3.ErrConstraint {
-			log.Println(err)
-			return
+		if errors.As(err, &e) {
+			if e.Code == sqlite3.ErrConstraint {
+				log.Println(err)
+				return
+			}
+			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
+				log.Panicln(err)
+				time.Sleep(1 * time.Second)
+				Sqlinsert(id, start)
+				return
+			}
 		}
 		panic(err)
 	}
@@ -77,9 +86,17 @@ func Saveuserinfo(u get.Userinfo, uid int) {
 	)
 	if err != nil {
 		e := sqlite3.Error{}
-		if errors.As(err, &e) && e.Code == sqlite3.ErrConstraint {
-			log.Println(err)
-			return
+		if errors.As(err, &e) {
+			if e.Code == sqlite3.ErrConstraint {
+				log.Println(err)
+				return
+			}
+			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
+				log.Panicln(err)
+				time.Sleep(1 * time.Second)
+				Saveuserinfo(u, uid)
+				return
+			}
 		}
 		panic(err)
 	}
