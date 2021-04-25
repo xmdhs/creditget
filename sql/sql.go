@@ -29,6 +29,15 @@ func Sqlget(id int) int {
 func Sqlup(id, s int) {
 	stmt, err := db.Prepare("UPDATE config SET i = ? WHERE id = ?")
 	if err != nil {
+		e := sqlite3.Error{}
+		if errors.As(err, &e) {
+			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
+				log.Panicln(err)
+				time.Sleep(1 * time.Second)
+				Sqlup(id, s)
+				return
+			}
+		}
 		panic(err)
 	}
 	defer stmt.Close()
