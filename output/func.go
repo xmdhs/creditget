@@ -95,7 +95,9 @@ var escapeWord = []string{
 
 func escape(w string) string {
 	for _, v := range escapeWord {
-		w = strings.ReplaceAll(w, v, `\`+v)
+		if strings.Contains(w, v) {
+			w = strings.ReplaceAll(w, v, `\`+v)
+		}
 	}
 	return w
 }
