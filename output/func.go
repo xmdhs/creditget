@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
+	_ "time/tzdata"
 )
 
 func Sqlget(key string, limit int, desc bool) string {
@@ -35,7 +37,7 @@ func Sqlget(key string, limit int, desc bool) string {
 		i++
 		sw.WriteString("| " + strconv.Itoa(i) + " | ")
 		sw.WriteString(v.UID + " | ")
-		sw.WriteString(v.Username + " | ")
+		sw.WriteString(escape(v.Username) + " | ")
 		sw.WriteString(v.Credits + " | ")
 		sw.WriteString(genTableValue("extcredits1", v.Extcredits1))
 		sw.WriteString(genTableValue("extcredits2", v.Extcredits2))
@@ -55,9 +57,46 @@ func Sqlget(key string, limit int, desc bool) string {
 		sw.WriteString(v.Views + " | ")
 		sw.WriteString(v.Group + " | ")
 		sw.WriteString(v.Extgroupids + " | ")
-		sw.WriteString(v.Lastvisit + " |\n")
+		sw.WriteString(timecover(v.Lastvisit) + " |\n")
 	}
 	return sw.String()
+}
+
+var cnLoc, _ = time.LoadLocation("Asia/Shanghai")
+
+func timecover(s string) string {
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return s
+	}
+	t := time.Unix(i, 0)
+	t = t.In(cnLoc)
+	return t.Format("2006-01-02 15:04:05")
+}
+
+var escapeWord = []string{
+	`\`,
+	"`",
+	"*",
+	"_",
+	"{",
+	"}",
+	"[",
+	"]",
+	"(",
+	")",
+	"#",
+	"+",
+	"-",
+	".",
+	"!",
+}
+
+func escape(w string) string {
+	for _, v := range escapeWord {
+		w = strings.ReplaceAll(w, v, `\`+v)
+	}
+	return w
 }
 
 func rowsget(rows *sql.Rows) []userdata {
@@ -170,7 +209,7 @@ func GenAll() {
 	f2 := bufio.NewWriter(f3)
 	defer f2.Flush()
 	f2.WriteString("有效账号/总爬取账号：" + strconv.Itoa(GetAvailableUserSum()) + "/" + strconv.Itoa(GetSum()) + "  \n")
-	f2.WriteString("\n以下数据均为去除无效账号后的\n")
+	f2.WriteString("\n以下数据均为去除无效账号后的  \n")
 	f2.WriteString("未设置邮箱：" + strconv.Itoa(GetNotEmailsSum()) + "  \n")
 	f2.WriteString("未设置头像：" + strconv.Itoa(GetNotSetAvatarSum()) + "  \n")
 	f2.WriteString("零分：" + strconv.Itoa(GetNilCreditsSum()) + "  \n")
@@ -181,10 +220,10 @@ func GenAll() {
 
 func GetGroupSum() map[string]int {
 	rows, err := db.Query(`SELECT DISTINCT groupname FROM MCBBS`)
-	defer rows.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer rows.Close()
 	list := make([]string, 0)
 	for rows.Next() {
 		var groupname string
