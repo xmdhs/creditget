@@ -90,6 +90,7 @@ var escapeWord = []string{
 	"-",
 	".",
 	"!",
+	"|",
 }
 
 func escape(w string) string {
