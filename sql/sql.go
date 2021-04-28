@@ -32,7 +32,7 @@ func Sqlup(id, s int) {
 		e := sqlite3.Error{}
 		if errors.As(err, &e) {
 			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
-				log.Panicln(err)
+				log.Println(err)
 				time.Sleep(1 * time.Second)
 				Sqlup(id, s)
 				return
@@ -101,7 +101,7 @@ func Saveuserinfo(u get.Userinfo, uid int) {
 				return
 			}
 			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
-				log.Panicln(err)
+				log.Println(err)
 				time.Sleep(1 * time.Second)
 				Saveuserinfo(u, uid)
 				return
