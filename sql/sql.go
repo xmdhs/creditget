@@ -54,7 +54,7 @@ func Sqlinsert(id, start int) {
 				return
 			}
 			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
-				log.Panicln(err)
+				log.Println(err)
 				time.Sleep(1 * time.Second)
 				Sqlinsert(id, start)
 				return
