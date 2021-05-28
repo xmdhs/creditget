@@ -73,7 +73,7 @@ func init() {
 }
 
 func readConfig() {
-	config := make(map[string]interface{}, 0)
+	config := make(map[string]interface{})
 	f, err := os.Open(`config.json`)
 	if err != nil {
 		panic(err)
