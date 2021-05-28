@@ -151,8 +151,20 @@ func Store(uid, name, friend string, i int) {
 	})
 	_, err := stmt.Exec(uid, name, friend, i)
 	if err != nil {
-		log.Println(err)
-		return
+		e := sqlite3.Error{}
+		if errors.As(err, &e) {
+			if e.Code == sqlite3.ErrConstraint {
+				log.Println(err)
+				return
+			}
+			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
+				log.Println(err)
+				time.Sleep(1 * time.Second)
+				Store(uid, name, friend, i)
+				return
+			}
+		}
+		panic(err)
 	}
 }
 
@@ -160,6 +172,14 @@ func GetList(i int) []string {
 	lists := make([]string, 0)
 	rows, err := db.Query("SELECT * FROM friend WHERE i=?", i)
 	if err != nil {
+		e := sqlite3.Error{}
+		if errors.As(err, &e) {
+			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
+				log.Println(err)
+				time.Sleep(1 * time.Second)
+				return GetList(i)
+			}
+		}
 		panic(err)
 	}
 	defer rows.Close()
