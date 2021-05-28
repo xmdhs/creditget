@@ -52,10 +52,11 @@ func main() {
 				}
 			}
 		} else {
-			get.Wg.Add(1)
-			get.Ch <- struct{}{}
-			get.Friend(-1, strconv.Itoa(fastUid))
-			get.Add(fastlayers)
+			f := get.NewFriend(thread, sleepTime)
+			f.Wg.Add(1)
+			f.Ch <- struct{}{}
+			f.Friend(-1, strconv.Itoa(fastUid))
+			f.Add(fastlayers)
 		}
 	}
 }

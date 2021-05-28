@@ -1,11 +1,9 @@
 package sql
 
 import (
-	"database/sql"
 	"errors"
 	"log"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/mattn/go-sqlite3"
@@ -137,19 +135,8 @@ func Find(uid string) bool {
 	return true
 }
 
-var one *sync.Once = &sync.Once{}
-var stmt *sql.Stmt
-
 func Store(uid, name, friend string, i int) {
-	one.Do(func() {
-		var err error
-		stmt, err = db.Prepare("INSERT INTO friend VALUES (?,?,?,?)")
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	})
-	_, err := stmt.Exec(uid, name, friend, i)
+	_, err := db.Exec("INSERT INTO friend VALUES (?,?,?,?)", uid, name, friend, i)
 	if err != nil {
 		e := sqlite3.Error{}
 		if errors.As(err, &e) {

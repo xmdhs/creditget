@@ -9,14 +9,25 @@ import (
 	"github.com/xmdhs/creditget/sql"
 )
 
-var Ch = make(chan struct{}, 10)
-var Wg = &sync.WaitGroup{}
+type Friend struct {
+	Ch        chan struct{}
+	Wg        sync.WaitGroup
+	SleepTime int
+}
 
-func Friend(i int, uid string) {
+func NewFriend(thread, SleepTime int) *Friend {
+	return &Friend{
+		Ch:        make(chan struct{}, thread),
+		Wg:        sync.WaitGroup{},
+		SleepTime: SleepTime,
+	}
+}
+
+func (f *Friend) Friend(i int, uid string) {
 	defer func() {
 		time.Sleep(500 * time.Millisecond)
-		<-Ch
-		Wg.Done()
+		<-f.Ch
+		f.Wg.Done()
 	}()
 	u, uu := Getinfo(uid)
 
@@ -29,7 +40,7 @@ func Friend(i int, uid string) {
 	sql.Store(uid, uu.Name, uu.Friendstring, i+1)
 }
 
-func Add(layers int) {
+func (f *Friend) Add(layers int) {
 	i := 0
 	for {
 		if i > layers {
@@ -38,15 +49,15 @@ func Add(layers int) {
 		lists := sql.GetList(i)
 		for _, v := range lists {
 			if sql.Find(v) {
-				Ch <- struct{}{}
-				Wg.Add(1)
+				f.Ch <- struct{}{}
+				f.Wg.Add(1)
 				if v == "" {
 					continue
 				}
-				go Friend(i, v)
+				go f.Friend(i, v)
 			}
 		}
-		Wg.Wait()
+		f.Wg.Wait()
 		i++
 	}
 }
