@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -153,4 +154,26 @@ func Store(uid, name, friend string, i int) {
 		log.Println(err)
 		return
 	}
+}
+
+func GetList(i int) []string {
+	lists := make([]string, 0)
+	rows, err := db.Query("SELECT * FROM friend WHERE i=?", i)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	var uidd string
+	var name string
+	var friend string
+	for rows.Next() {
+		err := rows.Scan(&uidd, &name, &friend, &i)
+		if err != nil {
+			panic(err)
+		}
+		list := strings.Split(friend, ",")
+		lists = append(lists, list...)
+	}
+	return lists
 }
