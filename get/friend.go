@@ -1,6 +1,7 @@
 package get
 
 import (
+	"log"
 	"strconv"
 	"sync"
 	"time"
@@ -17,14 +18,12 @@ func Friend(i int, uid string) {
 		<-Ch
 		Wg.Done()
 	}()
-	if i > 7 {
-		return
-	}
 	u, uu := Getinfo(uid)
 
 	uidi, err := strconv.ParseInt(uid, 10, 64)
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
+		return
 	}
 	sql.Saveuserinfo(u, int(uidi))
 	sql.Store(uid, uu.Name, uu.Friendstring, i+1)
@@ -41,6 +40,9 @@ func Add(layers int) {
 			if sql.Find(v) {
 				Ch <- struct{}{}
 				Wg.Add(1)
+				if v == "" {
+					continue
+				}
 				go Friend(i, v)
 			}
 		}
