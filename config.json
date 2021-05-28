@@ -11,5 +11,8 @@
     "extcredits5": "下界之星",
     "extcredits6": "贡献",
     "extcredits7": "爱心",
-    "extcredits8": "钻石"
+    "extcredits8": "钻石",
+    "fast": true,
+    "fast_uid" : 1,
+    "fast_layers": 8
 }

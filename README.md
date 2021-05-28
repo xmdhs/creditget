@@ -22,6 +22,8 @@ discuz 通用论坛用户积分爬取排序。
         "extcredits6": "贡献",
         "extcredits7": "爱心",
         "extcredits8": "钻石"
+        "fast": false,
+        "fast_uid": 1
     }
 
 extcredits1 等和积分名字的对应关系可来形如 https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=1 底部查看

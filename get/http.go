@@ -8,12 +8,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
+
+	j "github.com/xmdhs/creditget/json"
 )
 
-var c = http.Client{Timeout: 5 * time.Second}
-
 var ProfileAPI = `https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=`
+
+var c = http.Client{Timeout: 10 * time.Second}
 
 func h(uid string) ([]byte, error) {
 	reqs, err := http.NewRequest("GET", ProfileAPI+uid, nil)
@@ -59,10 +62,10 @@ func (n Not200) Error() string {
 	return "not 200 :" + n.msg
 }
 
-func json2userinfo(b []byte) (Userinfo, error) {
-	u := Userinfo{
-		Variables: variables{
-			Space: space{
+func json2userinfo(b []byte) (j.Userinfo, error) {
+	u := j.Userinfo{
+		Variables: j.Variables{
+			Space: j.Space{
 				Adminid:      "0",
 				Allowadmincp: "0",
 				Avatarstatus: "0",
@@ -98,7 +101,7 @@ func json2userinfo(b []byte) (Userinfo, error) {
 	return u, nil
 }
 
-func Getinfo(uid string) Userinfo {
+func Getinfo(uid string) (j.Userinfo, User) {
 	for {
 		b, err := h(uid)
 		if err != nil {
@@ -107,11 +110,24 @@ func Getinfo(uid string) Userinfo {
 			continue
 		}
 		u, err := json2userinfo(b)
+
+		uu := User{}
+		uu.Uid = u.Variables.Space.UID
+		uu.Name = u.Variables.Space.Username
+		uu.Frienduid = strings.Split(u.Variables.Space.Feedfriend, ",")
+		uu.Friendstring = u.Variables.Space.Feedfriend
 		if err != nil {
 			log.Println(err, uid)
 			time.Sleep(5 * time.Second)
 			continue
 		}
-		return u
+		return u, uu
 	}
+}
+
+type User struct {
+	Name         string
+	Uid          string
+	Frienduid    []string
+	Friendstring string
 }

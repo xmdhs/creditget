@@ -54,4 +54,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS friend(uid TEXT PRIMARY KEY,name TEXT,friend TEXT,i INT)`)
+	if err != nil {
+		panic(err)
+	}
 }

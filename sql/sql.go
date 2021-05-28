@@ -1,12 +1,14 @@
 package sql
 
 import (
+	"database/sql"
 	"errors"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/mattn/go-sqlite3"
-	"github.com/xmdhs/creditget/get"
+	j "github.com/xmdhs/creditget/json"
 )
 
 func Sqlget(id int) int {
@@ -64,7 +66,7 @@ func Sqlinsert(id, start int) {
 	}
 }
 
-func Saveuserinfo(u get.Userinfo, uid int) {
+func Saveuserinfo(u j.Userinfo, uid int) {
 	_, err := db.Exec(`INSERT INTO MCBBS VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		uid,
 		u.Variables.Space.Username,
@@ -119,5 +121,36 @@ func getmedals(medals interface{}) int {
 		return len(medals)
 	default:
 		return 0
+	}
+}
+
+func Find(uid string) bool {
+	rows, err := db.Query("SELECT uid FROM friend WHERE uid=?", uid)
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+	for rows.Next() {
+		return false
+	}
+	return true
+}
+
+var one *sync.Once = &sync.Once{}
+var stmt *sql.Stmt
+
+func Store(uid, name, friend string, i int) {
+	one.Do(func() {
+		var err error
+		stmt, err = db.Prepare("INSERT INTO friend VALUES (?,?,?,?)")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	})
+	_, err := stmt.Exec(uid, name, friend, i)
+	if err != nil {
+		log.Println(err)
+		return
 	}
 }

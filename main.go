@@ -20,6 +20,10 @@ var (
 	end       int
 	thread    int
 	sleepTime int = 500
+
+	fast       bool
+	fastUid    int = 1
+	fastlayers int = 7
 )
 
 func main() {
@@ -36,21 +40,28 @@ func main() {
 			i = start
 		}
 		t := 0
-		for ; i < end; i++ {
-			w.Add(1)
-			go toget(i, &w)
-			t++
-			if t > thread {
-				w.Wait()
-				t = 0
-				sql.Sqlup(0, i+1)
+		if !fast {
+			for ; i < end; i++ {
+				w.Add(1)
+				go toget(i, &w)
+				t++
+				if t > thread {
+					w.Wait()
+					t = 0
+					sql.Sqlup(0, i+1)
+				}
 			}
+		} else {
+			get.Wg.Add(1)
+			get.Ch <- struct{}{}
+			get.Friend(-1, strconv.Itoa(fastUid))
+			get.Add(fastlayers)
 		}
 	}
 }
 
 func toget(uid int, wait *sync.WaitGroup) {
-	u := get.Getinfo(strconv.Itoa(uid))
+	u, _ := get.Getinfo(strconv.Itoa(uid))
 	sql.Saveuserinfo(u, uid)
 	log.Println(u.Variables.Space.Username, uid, u.Variables.Space.Credits)
 	time.Sleep(time.Duration(sleepTime) * time.Millisecond)
@@ -81,6 +92,9 @@ func readConfig() {
 	thread = int(config["thread"].(float64))
 	sleepTime = int(config["sleepTime"].(float64))
 	get.ProfileAPI = config["disucuzApiAddress"].(string)
+	fast = config["fast"].(bool)
+	fastUid = int(config["fast_uid"].(float64))
+	fastlayers = int(config["fast_layers"].(float64))
 	for _, k := range output.Extcredits {
 		if v, ok := config[k]; ok {
 			output.Gendata[k] = v.(string)
