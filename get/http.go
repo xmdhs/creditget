@@ -110,17 +110,18 @@ func Getinfo(uid string) (j.Userinfo, User) {
 			continue
 		}
 		u, err := json2userinfo(b)
+		if err != nil {
+			log.Println(err, uid)
+			time.Sleep(5 * time.Second)
+			continue
+		}
 
 		uu := User{}
 		uu.Uid = u.Variables.Space.UID
 		uu.Name = u.Variables.Space.Username
 		uu.Frienduid = strings.Split(u.Variables.Space.Feedfriend, ",")
 		uu.Friendstring = u.Variables.Space.Feedfriend
-		if err != nil {
-			log.Println(err, uid)
-			time.Sleep(5 * time.Second)
-			continue
-		}
+
 		return u, uu
 	}
 }
