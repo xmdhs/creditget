@@ -1,1 +1,1 @@
-go build -o get.exe -trimpath -ldflags "-w -s"  main.go
+go build -o get.exe -trimpath -ldflags "-w -s -linkmode \"external\" -extldflags \"-static -O3\""  main.go
