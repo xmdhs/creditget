@@ -25,7 +25,7 @@ func NewFriend(thread, SleepTime int) *Friend {
 
 func (f *Friend) Friend(i int, uid string) {
 	defer func() {
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(time.Duration(f.SleepTime) * time.Millisecond)
 		<-f.Ch
 		f.Wg.Done()
 	}()
