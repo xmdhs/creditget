@@ -2,7 +2,7 @@
     "start": 1,
     "end": 3709554,
     "thread": 8,
-    "sleepTime" : 500,
+    "sleepTime": 500,
     "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=",
     "extcredits1": "人气",
     "extcredits2": "金粒",
@@ -12,7 +12,9 @@
     "extcredits6": "贡献",
     "extcredits7": "爱心",
     "extcredits8": "钻石",
-    "fast": true,
-    "fast_uid" : 1,
-    "fast_layers": 8
+    "fast": {
+        "on": true,
+        "uid": 1,
+        "layers": 8
+    }
 }

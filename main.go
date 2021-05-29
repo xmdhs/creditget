@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -74,31 +73,43 @@ func init() {
 }
 
 func readConfig() {
-	config := make(map[string]interface{})
-	f, err := os.Open(`config.json`)
+	c := config{}
+	b, err := os.ReadFile(`config.json`)
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
-	b, err := ioutil.ReadAll(f)
+	err = json.Unmarshal(b, &c)
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(b, &config)
-	if err != nil {
-		panic(err)
-	}
-	start = int(config["start"].(float64))
-	end = int(config["end"].(float64))
-	thread = int(config["thread"].(float64))
-	sleepTime = int(config["sleepTime"].(float64))
-	get.ProfileAPI = config["disucuzApiAddress"].(string)
-	fast = config["fast"].(bool)
-	fastUid = int(config["fast_uid"].(float64))
-	fastlayers = int(config["fast_layers"].(float64))
-	for _, k := range output.Extcredits {
-		if v, ok := config[k]; ok {
-			output.Gendata[k] = v.(string)
-		}
-	}
+	start = c.Start
+	end = c.End
+	thread = c.Thread
+	sleepTime = c.SleepTime
+	fast = c.Fast.On
+	fastUid = c.Fast.UID
+	fastlayers = c.Fast.Layers
+}
+
+type config struct {
+	DisucuzAPIAddress string     `json:"disucuzApiAddress"`
+	End               int        `json:"end"`
+	Extcredits1       string     `json:"extcredits1"`
+	Extcredits2       string     `json:"extcredits2"`
+	Extcredits3       string     `json:"extcredits3"`
+	Extcredits4       string     `json:"extcredits4"`
+	Extcredits5       string     `json:"extcredits5"`
+	Extcredits6       string     `json:"extcredits6"`
+	Extcredits7       string     `json:"extcredits7"`
+	Extcredits8       string     `json:"extcredits8"`
+	Fast              configFast `json:"fast"`
+	SleepTime         int        `json:"sleepTime"`
+	Start             int        `json:"start"`
+	Thread            int        `json:"thread"`
+}
+
+type configFast struct {
+	Layers int  `json:"layers"`
+	On     bool `json:"on"`
+	UID    int  `json:"uid"`
 }
