@@ -126,7 +126,15 @@ func getmedals(medals interface{}) int {
 func Find(uid string) bool {
 	rows, err := db.Query("SELECT uid FROM friend WHERE uid=?", uid)
 	if err != nil {
-		return false
+		e := sqlite3.Error{}
+		if errors.As(err, &e) {
+			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
+				log.Println(err)
+				time.Sleep(1 * time.Second)
+				return Find(uid)
+			}
+		}
+		panic(err)
 	}
 	defer rows.Close()
 	for rows.Next() {

@@ -49,11 +49,11 @@ func (f *Friend) Add(layers int) {
 		lists := sql.GetList(i)
 		for _, v := range lists {
 			if sql.Find(v) {
-				f.Ch <- struct{}{}
-				f.Wg.Add(1)
 				if v == "" {
 					continue
 				}
+				f.Ch <- struct{}{}
+				f.Wg.Add(1)
 				go f.Friend(i, v)
 			}
 		}
