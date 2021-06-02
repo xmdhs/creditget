@@ -18,9 +18,10 @@ type Friend struct {
 
 func NewFriend(thread, SleepTime int, ProfileAPI string) *Friend {
 	return &Friend{
-		Ch:        make(chan struct{}, thread),
-		Wg:        sync.WaitGroup{},
-		SleepTime: SleepTime,
+		Ch:         make(chan struct{}, thread),
+		Wg:         sync.WaitGroup{},
+		SleepTime:  SleepTime,
+		ProfileAPI: ProfileAPI,
 	}
 }
 
