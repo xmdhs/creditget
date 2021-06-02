@@ -10,12 +10,13 @@ import (
 )
 
 type Friend struct {
-	Ch        chan struct{}
-	Wg        sync.WaitGroup
-	SleepTime int
+	Ch         chan struct{}
+	Wg         sync.WaitGroup
+	SleepTime  int
+	ProfileAPI string
 }
 
-func NewFriend(thread, SleepTime int) *Friend {
+func NewFriend(thread, SleepTime int, ProfileAPI string) *Friend {
 	return &Friend{
 		Ch:        make(chan struct{}, thread),
 		Wg:        sync.WaitGroup{},
@@ -29,7 +30,7 @@ func (f *Friend) Friend(i int, uid string) {
 		<-f.Ch
 		f.Wg.Done()
 	}()
-	u, uu := Getinfo(uid)
+	u, uu := Getinfo(uid, f.ProfileAPI)
 
 	uidi, err := strconv.ParseInt(uid, 10, 64)
 	if err != nil {

@@ -23,6 +23,8 @@ var (
 	fast       bool
 	fastUid    int = 1
 	fastlayers int = 7
+
+	profileAPI string
 )
 
 func main() {
@@ -42,7 +44,7 @@ func main() {
 		if !fast {
 			for ; i < end; i++ {
 				w.Add(1)
-				go toget(i, &w)
+				go toget(i, &w, profileAPI)
 				t++
 				if t > thread {
 					w.Wait()
@@ -51,7 +53,7 @@ func main() {
 				}
 			}
 		} else {
-			f := get.NewFriend(thread, sleepTime)
+			f := get.NewFriend(thread, sleepTime, profileAPI)
 			f.Wg.Add(1)
 			f.Ch <- struct{}{}
 			f.Friend(-1, strconv.Itoa(fastUid))
@@ -60,8 +62,8 @@ func main() {
 	}
 }
 
-func toget(uid int, wait *sync.WaitGroup) {
-	u, _ := get.Getinfo(strconv.Itoa(uid))
+func toget(uid int, wait *sync.WaitGroup, profileAPI string) {
+	u, _ := get.Getinfo(strconv.Itoa(uid), profileAPI)
 	sql.Saveuserinfo(u, uid)
 	log.Println(u.Variables.Space.Username, uid, u.Variables.Space.Credits)
 	time.Sleep(time.Duration(sleepTime) * time.Millisecond)
@@ -89,6 +91,8 @@ func readConfig() {
 	fast = c.Fast.On
 	fastUid = c.Fast.UID
 	fastlayers = c.Fast.Layers
+
+	profileAPI = c.DisucuzAPIAddress
 }
 
 type config struct {

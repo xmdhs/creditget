@@ -14,11 +14,9 @@ import (
 	j "github.com/xmdhs/creditget/json"
 )
 
-var ProfileAPI = `https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=`
-
 var c = http.Client{Timeout: 10 * time.Second}
 
-func h(uid string) ([]byte, error) {
+func h(uid, ProfileAPI string) ([]byte, error) {
 	reqs, err := http.NewRequest("GET", ProfileAPI+uid, nil)
 	if err != nil {
 		return nil, fmt.Errorf("h: %w", err)
@@ -101,9 +99,9 @@ func json2userinfo(b []byte) (j.Userinfo, error) {
 	return u, nil
 }
 
-func Getinfo(uid string) (j.Userinfo, User) {
+func Getinfo(uid, ProfileAPI string) (j.Userinfo, User) {
 	for {
-		b, err := h(uid)
+		b, err := h(uid, ProfileAPI)
 		if err != nil {
 			log.Println(err, uid)
 			time.Sleep(5 * time.Second)
