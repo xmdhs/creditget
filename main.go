@@ -91,25 +91,22 @@ func readConfig() {
 	fast = c.Fast.On
 	fastUid = c.Fast.UID
 	fastlayers = c.Fast.Layers
-
 	profileAPI = c.DisucuzAPIAddress
+	for _, v := range output.GetExtcredits() {
+		if pname, ok := c.Points[v]; ok {
+			output.Gendata[v] = pname
+		}
+	}
 }
 
 type config struct {
-	DisucuzAPIAddress string     `json:"disucuzApiAddress"`
-	End               int        `json:"end"`
-	Extcredits1       string     `json:"extcredits1"`
-	Extcredits2       string     `json:"extcredits2"`
-	Extcredits3       string     `json:"extcredits3"`
-	Extcredits4       string     `json:"extcredits4"`
-	Extcredits5       string     `json:"extcredits5"`
-	Extcredits6       string     `json:"extcredits6"`
-	Extcredits7       string     `json:"extcredits7"`
-	Extcredits8       string     `json:"extcredits8"`
-	Fast              configFast `json:"fast"`
-	SleepTime         int        `json:"sleepTime"`
-	Start             int        `json:"start"`
-	Thread            int        `json:"thread"`
+	DisucuzAPIAddress string            `json:"disucuzApiAddress"`
+	End               int               `json:"end"`
+	Points            map[string]string `json:"points"`
+	Fast              configFast        `json:"fast"`
+	SleepTime         int               `json:"sleepTime"`
+	Start             int               `json:"start"`
+	Thread            int               `json:"thread"`
 }
 
 type configFast struct {

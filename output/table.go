@@ -8,7 +8,7 @@ func setTableName() (string, int) {
 	sw := strings.Builder{}
 	sw.WriteString("| 排名 | uid | 用户名 | 积分 | ")
 	sum := 0
-	for _, v := range Extcredits {
+	for _, v := range extcredits {
 		if v, ok := Gendata[v]; ok {
 			sum++
 			sw.WriteString(v)
@@ -19,7 +19,7 @@ func setTableName() (string, int) {
 	return sw.String(), sum
 }
 
-var Extcredits = []string{
+var extcredits = []string{
 	"extcredits1",
 	"extcredits2",
 	"extcredits3",
@@ -28,6 +28,10 @@ var Extcredits = []string{
 	"extcredits6",
 	"extcredits7",
 	"extcredits8",
+}
+
+func GetExtcredits() []string {
+	return extcredits
 }
 
 func genSeparate(i int) string {

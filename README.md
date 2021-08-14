@@ -12,18 +12,23 @@ discuz 通用论坛用户积分爬取排序。
         "start": 1, //起始 uid 左闭右开
         "end": 3709554, //结束 uid 
         "thread": 8, //使用的协程数
-        "sleepTime" : 500, //某个协程爬取一次后睡眠多少毫秒
+        "sleepTime": 500, //某个协程爬取一次后睡眠多少毫秒
         "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=", // api 地址
-        "extcredits1": "人气",
-        "extcredits2": "金粒",
-        "extcredits3": "金锭", 
-        "extcredits4": "绿宝石", 
-        "extcredits5": "下界之星",
-        "extcredits6": "贡献",
-        "extcredits7": "爱心",
-        "extcredits8": "钻石"
-        "fast": false,
-        "fast_uid": 1
+        "points": {
+            "extcredits1": "人气",
+            "extcredits2": "金粒",
+            "extcredits3": "金锭",
+            "extcredits4": "绿宝石",
+            "extcredits5": "下界之星",
+            "extcredits6": "贡献",
+            "extcredits7": "爱心",
+            "extcredits8": "钻石"
+        },
+        "fast": {
+            "on": true, //快速获取，利用下方 uid 对应的用户的好友，快速获取其好友的信息，以此递归。
+            "uid": 1, 
+            "layers": 8
+        }
     }
 
 extcredits1 等和积分名字的对应关系可来形如 https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=1 底部查看
