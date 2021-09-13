@@ -11,24 +11,25 @@ import (
 )
 
 func Sqlget(id int) int {
-	stmt, err := db.Prepare(`SELECT i FROM config WHERE id = ?`)
-	if err != nil {
-		panic(err)
-	}
-	defer stmt.Close()
-	rows, err := stmt.Query(id)
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	rows.Next()
+	row := db.QueryRow(`SELECT i FROM config WHERE id = ?`, id)
 	var fid int
-	rows.Scan(&fid)
+	err := row.Scan(&fid)
+	if err != nil {
+		e := sqlite3.Error{}
+		if errors.As(err, &e) {
+			if e.Code == sqlite3.ErrBusy || e.Code == sqlite3.ErrLocked {
+				log.Println(err)
+				time.Sleep(1 * time.Second)
+				return Sqlget(id)
+			}
+		}
+		panic(err)
+	}
 	return fid
 }
 
 func Sqlup(id, s int) {
-	stmt, err := db.Prepare("UPDATE config SET i = ? WHERE id = ?")
+	_, err := db.Exec("UPDATE config SET i = ? WHERE id = ?", s, id)
 	if err != nil {
 		e := sqlite3.Error{}
 		if errors.As(err, &e) {
@@ -41,8 +42,6 @@ func Sqlup(id, s int) {
 		}
 		panic(err)
 	}
-	defer stmt.Close()
-	stmt.Exec(s, id)
 }
 
 func Sqlinsert(id, start int) {

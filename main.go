@@ -50,6 +50,7 @@ func main() {
 					w.Wait()
 					t = 0
 					sql.Sqlup(0, i+1)
+					time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 				}
 			}
 		} else {
@@ -66,7 +67,6 @@ func toget(uid int, wait *sync.WaitGroup, profileAPI string) {
 	u, _ := get.Getinfo(strconv.Itoa(uid), profileAPI)
 	sql.Saveuserinfo(u, uid)
 	log.Println(u.Variables.Space.Username, uid, u.Variables.Space.Credits)
-	time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 	wait.Done()
 }
 

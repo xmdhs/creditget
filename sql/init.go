@@ -15,7 +15,7 @@ func Getdb() *sql.DB {
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite3", "./credit.db")
+	db, err = sql.Open("sqlite3", "./credit.db?_txlock=IMMEDIATE&_journal_mode=WAL")
 	if err != nil {
 		panic(err)
 	}
