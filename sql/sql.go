@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"strings"
@@ -22,6 +23,9 @@ func Sqlget(id int) int {
 				time.Sleep(1 * time.Second)
 				return Sqlget(id)
 			}
+		}
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0
 		}
 		panic(err)
 	}
