@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -48,6 +49,9 @@ func NewMysql(url string) (*MysqlDb, error) {
 		PRIMARY KEY (ID)
 	  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin;
 	  `)
+	db.SetConnMaxLifetime(time.Minute * 3)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 
 	return &MysqlDb{DB: db}, nil
 }
