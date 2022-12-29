@@ -41,7 +41,7 @@ func main() {
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		panic(err)
 	}
-	if v.VALUE != "" {
+	if v != nil {
 		i, err = strconv.Atoi(v.VALUE)
 		if err != nil {
 			panic(err)
@@ -91,6 +91,7 @@ func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb) {
 	if err != nil {
 		panic(err)
 	}
+	log.Println(uid, p.Credits)
 }
 
 func init() {

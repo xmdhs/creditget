@@ -1,9 +1,8 @@
 {
     "start": 1,
-    "end": 3709554,
+    "end": 5140500,
     "thread": 8,
     "sleepTime": 500,
-    "disucuzApiAddress": "https://www.mcbbs.net/api/mobile/index.php?version=4&module=profile&uid=",
     "points": {
         "extcredits1": "人气",
         "extcredits2": "金粒",
@@ -14,9 +13,5 @@
         "extcredits7": "爱心",
         "extcredits8": "钻石"
     },
-    "fast": {
-        "on": true,
-        "uid": 1,
-        "layers": 8
-    }
+    "dBUrl": ""
 }

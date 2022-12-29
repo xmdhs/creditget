@@ -35,7 +35,6 @@ func NewMysql(url string) (*MysqlDb, error) {
 		posts int(11) NOT NULL,
 		threads int(11) NOT NULL,
 		friends int(11) NOT NULL,
-		views int(11) NOT NULL,
 		medal int(11) NOT NULL,
 		lastview bigint(20) NOT NULL,
 		extgroupids text NOT NULL,
@@ -54,9 +53,9 @@ func NewMysql(url string) (*MysqlDb, error) {
 }
 
 func (m *MysqlDb) InsterCreditInfo(cxt context.Context, c *model.CreditInfo) error {
-	_, err := m.DB.NamedExecContext(cxt, `INSERT or update INTO credit
-	(uid, name, credits, extcredits1, extcredits2, extcredits3, extcredits4, extcredits5, extcredits6, extcredits7, extcredits8, oltime, groupname, posts, threads, friends, views, medal, lastview, extgroupids, sex)
-	VALUES(:uid, :name, :credits, :extcredits1, :extcredits2, :extcredits3, :extcredits4, :extcredits5, :extcredits6, :extcredits7, :extcredits8, :oltime, :groupname, :posts, :threads, :friends, :views, :medal, :lastview, :extgroupids, :sex);
+	_, err := m.DB.NamedExecContext(cxt, `REPLACE INTO credit
+	(uid, name, credits, extcredits1, extcredits2, extcredits3, extcredits4, extcredits5, extcredits6, extcredits7, extcredits8, oltime, groupname, posts, threads, friends, medal, lastview, extgroupids, sex)
+	VALUES(:uid, :name, :credits, :extcredits1, :extcredits2, :extcredits3, :extcredits4, :extcredits5, :extcredits6, :extcredits7, :extcredits8, :oltime, :groupname, :posts, :threads, :friends, :medal, :lastview, :extgroupids, :sex);
 	`, c)
 	if err != nil {
 		return fmt.Errorf("InsterCreditInfo: %w", err)
@@ -65,7 +64,7 @@ func (m *MysqlDb) InsterCreditInfo(cxt context.Context, c *model.CreditInfo) err
 }
 
 func (m *MysqlDb) InsterConfig(cxt context.Context, c *model.Confing) error {
-	_, err := m.DB.NamedExecContext(cxt, `INSERT or update INTO config
+	_, err := m.DB.NamedExecContext(cxt, `REPLACE INTO config
 	(id, value)
 	VALUES(:id, :value);
 	`, c)
