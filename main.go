@@ -5,13 +5,17 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"sync"
 	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/xmdhs/creditget/db"
+	"github.com/xmdhs/creditget/model"
+	"github.com/xmdhs/creditget/profile"
 )
 
 var (
@@ -51,12 +55,15 @@ func main() {
 	t := 0
 	for ; i < end; i++ {
 		w.Add(1)
-		go toget(i, &w, profileAPI)
+		go toget(cxt, i, &w, mysql)
 		t++
 		if t > thread {
 			w.Wait()
 			t = 0
-			sql.Sqlup(0, i+1)
+			mysql.InsterConfig(cxt, &model.Confing{
+				ID:    0,
+				VALUE: strconv.Itoa(i),
+			})
 			time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 		}
 	}
@@ -67,9 +74,23 @@ var c = &http.Client{
 	Timeout: 10 * time.Second,
 }
 
-func toget(uid int, wait *sync.WaitGroup) {
-
-	wait.Done()
+func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb) {
+	defer wait.Done()
+	var p *model.CreditInfo
+	err := retry.Do(func() error {
+		var err error
+		p, err = profile.GetCredit(uid, c)
+		return err
+	}, getRetryOpts(20)...)
+	if err != nil {
+		panic(err)
+	}
+	err = retry.Do(func() error {
+		return db.InsterCreditInfo(cxt, p)
+	}, getRetryOpts(20)...)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func init() {
@@ -100,4 +121,19 @@ type config struct {
 	Start     int               `json:"start"`
 	Thread    int               `json:"thread"`
 	DBUrl     string            `json:"dBUrl"`
+}
+
+func getRetryOpts(attempts uint) []retry.Option {
+	if attempts == 0 {
+		attempts = 15
+	}
+	return []retry.Option{
+		retry.Attempts(attempts),
+		retry.Delay(time.Second * 3),
+		retry.LastErrorOnly(true),
+		retry.MaxDelay(5 * time.Minute),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("retry %d: %v", n, err)
+		}),
+	}
 }
