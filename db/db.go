@@ -11,7 +11,7 @@ import (
 )
 
 type MysqlDb struct {
-	DB *sqlx.DB
+	db *sqlx.DB
 }
 
 func NewMysql(url string) (*MysqlDb, error) {
@@ -53,11 +53,15 @@ func NewMysql(url string) (*MysqlDb, error) {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 
-	return &MysqlDb{DB: db}, nil
+	return &MysqlDb{db: db}, nil
 }
 
-func (m *MysqlDb) InsterCreditInfo(cxt context.Context, c *model.CreditInfo) error {
-	_, err := m.DB.NamedExecContext(cxt, `REPLACE INTO credit
+func (m *MysqlDb) GetDB() *sqlx.DB {
+	return m.db
+}
+
+func (m *MysqlDb) InsterCreditInfo(cxt context.Context, tx *sqlx.Tx, c *model.CreditInfo) error {
+	_, err := tx.NamedExecContext(cxt, `REPLACE INTO credit
 	(uid, name, credits, extcredits1, extcredits2, extcredits3, extcredits4, extcredits5, extcredits6, extcredits7, extcredits8, oltime, groupname, posts, threads, friends, medal, lastview, extgroupids, sex)
 	VALUES(:uid, :name, :credits, :extcredits1, :extcredits2, :extcredits3, :extcredits4, :extcredits5, :extcredits6, :extcredits7, :extcredits8, :oltime, :groupname, :posts, :threads, :friends, :medal, :lastview, :extgroupids, :sex);
 	`, c)
@@ -67,8 +71,8 @@ func (m *MysqlDb) InsterCreditInfo(cxt context.Context, c *model.CreditInfo) err
 	return nil
 }
 
-func (m *MysqlDb) InsterConfig(cxt context.Context, c *model.Confing) error {
-	_, err := m.DB.NamedExecContext(cxt, `REPLACE INTO config
+func (m *MysqlDb) InsterConfig(cxt context.Context, tx *sqlx.Tx, c *model.Confing) error {
+	_, err := tx.NamedExecContext(cxt, `REPLACE INTO config
 	(id, value)
 	VALUES(:id, :value);
 	`, c)
@@ -80,7 +84,7 @@ func (m *MysqlDb) InsterConfig(cxt context.Context, c *model.Confing) error {
 
 func (m *MysqlDb) SelectConfig(cxt context.Context, id int) (*model.Confing, error) {
 	c := model.Confing{}
-	err := m.DB.Get(&c, m.DB.Rebind(`SELECT id, value FROM config where id = ?;`), id)
+	err := m.db.Get(&c, m.db.Rebind(`SELECT id, value FROM config where id = ?;`), id)
 	if err != nil {
 		return nil, fmt.Errorf("SelectConfig: %w", err)
 	}

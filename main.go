@@ -53,17 +53,55 @@ func main() {
 	}
 
 	t := 0
+	ch := make(chan *model.CreditInfo, 10)
+
 	for ; i < end; i++ {
 		w.Add(1)
-		go toget(cxt, i, &w, mysql)
+		go toget(cxt, i, &w, mysql, ch)
 		t++
 		if t > thread {
-			w.Wait()
+			done := make(chan struct{}, 1)
+			go func() {
+				w.Wait()
+				done <- struct{}{}
+			}()
+
+			l := make([]*model.CreditInfo, 0, thread)
+		B:
+			for {
+				select {
+				case v := <-ch:
+					l = append(l, v)
+				case <-done:
+					break B
+				}
+			}
+			err := retry.Do(func() error {
+				tx, err := mysql.GetDB().BeginTxx(cxt, &sql.TxOptions{})
+				if err != nil {
+					return err
+				}
+				defer tx.Rollback()
+				for _, v := range l {
+					err = mysql.InsterCreditInfo(cxt, tx, v)
+					if err != nil {
+						return err
+					}
+					log.Println(v.Uid, v.Name, v.Credits)
+				}
+				err = mysql.InsterConfig(cxt, tx, &model.Confing{
+					ID:    0,
+					VALUE: strconv.Itoa(i),
+				})
+				if err != nil {
+					return err
+				}
+				return tx.Commit()
+			}, getRetryOpts(20)...)
+			if err != nil {
+				panic(err)
+			}
 			t = 0
-			mysql.InsterConfig(cxt, &model.Confing{
-				ID:    0,
-				VALUE: strconv.Itoa(i),
-			})
 			time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 		}
 	}
@@ -74,7 +112,7 @@ var c = &http.Client{
 	Timeout: 10 * time.Second,
 }
 
-func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb) {
+func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb, ch chan *model.CreditInfo) {
 	defer wait.Done()
 	var p *model.CreditInfo
 	err := retry.Do(func() error {
@@ -85,13 +123,7 @@ func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb) {
 	if err != nil {
 		panic(err)
 	}
-	err = retry.Do(func() error {
-		return db.InsterCreditInfo(cxt, p)
-	}, getRetryOpts(20)...)
-	if err != nil {
-		panic(err)
-	}
-	log.Println(uid, p.Credits)
+	ch <- p
 }
 
 func init() {
