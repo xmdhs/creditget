@@ -16,7 +16,7 @@ func (e ErrHttpCode) Error() string {
 }
 
 func GetCredit(uid int, c *http.Client) (*model.CreditInfo, error) {
-	reps, err := c.Get("https://www.mcbbs.net/?" + strconv.Itoa(uid))
+	reps, err := c.Get("https://www.mcbbs.net/home.php?mod=space&uid=" + strconv.Itoa(uid))
 	if reps != nil {
 		defer reps.Body.Close()
 	}
