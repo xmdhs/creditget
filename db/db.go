@@ -42,8 +42,11 @@ func NewMysql(url string) (*MysqlDb, error) {
 		sex TINYINT NOT NULL,
 		PRIMARY KEY (uid) 
 	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-	  
-	  create table if not exists config (
+	  `)
+	if err != nil {
+		return nil, fmt.Errorf("NewMysql: %w", err)
+	}
+	_, err = db.Exec(` create table if not exists config (
 		id int(11) NOT NULL,
 		value text NOT NULL,
 		PRIMARY KEY (ID)
