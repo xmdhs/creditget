@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetCredit(t *testing.T) {
-	m, err := GetCredit(2169213, &http.Client{})
+	m, err := GetCredit(0, &http.Client{})
 	if err != nil {
 		t.Fatal(err)
 	}

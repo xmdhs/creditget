@@ -1,7 +1,6 @@
 package profile
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -19,17 +18,17 @@ func getName(d *goquery.Document) string {
 var numReg = regexp.MustCompile(`\d+`)
 
 func getFriends(d *goquery.Document) int32 {
-	f := d.Find("#ct > div > div.bm.bw0 > div > div.bm_c.u_profile > div:nth-child(1) > ul.cl.bbda.pbm.mbm > li > a:nth-child(2)").Text()
+	f := d.Find("#ct ul.cl.bbda.pbm.mbm > li > a:nth-child(2)").Text()
 	return toInt32(numReg.FindString(f))
 }
 
 func getPosts(d *goquery.Document) int32 {
-	f := d.Find("#ct > div > div.bm.bw0 > div > div.bm_c.u_profile > div:nth-child(1) > ul.cl.bbda.pbm.mbm > li > a:nth-child(4)").Text()
+	f := d.Find("#ct ul.cl.bbda.pbm.mbm > li > a:nth-child(4)").Text()
 	return toInt32(numReg.FindString(f))
 }
 
 func getThreads(d *goquery.Document) int32 {
-	f := d.Find("#ct > div > div.bm.bw0 > div > div.bm_c.u_profile > div:nth-child(1) > ul.cl.bbda.pbm.mbm > li > a:nth-child(6)").Text()
+	f := d.Find("#ct ul.cl.bbda.pbm.mbm > li > a:nth-child(6)").Text()
 	return toInt32(numReg.FindString(f))
 }
 
@@ -41,19 +40,38 @@ func toInt32(s string) int32 {
 	return int32(i)
 }
 
-func getCredits(d *goquery.Document) []int32 {
-	cl := make([]int32, 0, 9)
-	for i := 0; i < 9; i++ {
-		f := d.Find(fmt.Sprintf("#psts > ul > li:nth-child(%v)", i+2)).Text()
-		n := numReg.FindString(f)
-		cl = append(cl, toInt32(n))
-	}
+func getCredits(d *goquery.Document) [9]int32 {
+	cl := [9]int32{}
+	has := false
+	f := d.Find("#psts > ul > li")
+	i := 0
+	f.EachWithBreak(func(_ int, s *goquery.Selection) bool {
+		t := s.Text()
+		if strings.Contains(t, "积分") {
+			has = true
+		}
+		if !has {
+			return true
+		}
+		n := numReg.FindString(t)
+		cl[i] = toInt32(n)
+		i++
+		return true
+	})
 	return cl
 }
 
 func getOltime(d *goquery.Document) int32 {
-	f := d.Find("#pbbs > li:nth-child(1)").Text()
-	return toInt32(numReg.FindString(f))
+	f := d.Find("#pbbs > li")
+	oltime := ""
+	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
+		if strings.Contains(s.Text(), "在线时间") {
+			oltime = f.Text()
+			return false
+		}
+		return true
+	})
+	return toInt32(numReg.FindString(oltime))
 }
 
 func getGroupname(d *goquery.Document) string {
