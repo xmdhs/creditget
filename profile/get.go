@@ -79,7 +79,8 @@ func getGroupname(d *goquery.Document) string {
 	findS := ems.First()
 
 	ems.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		if strings.Contains(s.Text(), "用户组") && !strings.Contains(s.Text(), "扩展用户组") {
+		t := s.Text()
+		if strings.Contains(t, "用户组") && !strings.Contains(t, "扩展用户组") {
 			findS = s
 			return false
 		}
