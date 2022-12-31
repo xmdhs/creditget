@@ -66,7 +66,7 @@ func getOltime(d *goquery.Document) int32 {
 	oltime := ""
 	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
 		if strings.Contains(s.Text(), "在线时间") {
-			oltime = f.Text()
+			oltime = s.Text()
 			return false
 		}
 		return true
@@ -98,8 +98,16 @@ var timeReg = regexp.MustCompile(`\d{4}-\d{1,2}-\d{1,2} \d{2}:\d{2}`)
 var shanhai, _ = time.LoadLocation("Asia/Shanghai")
 
 func getLastview(d *goquery.Document) int64 {
-	f := d.Find("#pbbs > li:nth-child(3)").Text()
-	ts := timeReg.FindString(f)
+	f := d.Find("#pbbs > li")
+	lastv := ""
+	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
+		if strings.Contains(s.Text(), "最后访问") {
+			lastv = s.Text()
+			return false
+		}
+		return true
+	})
+	ts := timeReg.FindString(lastv)
 	t, err := time.ParseInLocation("2006-1-2 15:04", ts, shanhai)
 	if err != nil {
 		return 0
