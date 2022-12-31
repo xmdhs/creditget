@@ -19,7 +19,7 @@ func NewMysql(url string) (*MysqlDb, error) {
 	if err != nil {
 		return nil, fmt.Errorf("NewMysql: %w", err)
 	}
-	db.Exec(`CREATE TABLE credit (
+	_, err = db.Exec(`create table if not exists credit (
 		uid int(11) NOT NULL,
 		name text NOT NULL,
 		credits int(11) NOT NULL,
@@ -43,12 +43,15 @@ func NewMysql(url string) (*MysqlDb, error) {
 		PRIMARY KEY (uid) 
 	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 	  
-	  CREATE TABLE config (
+	  create table if not exists config (
 		id int(11) NOT NULL,
 		value text NOT NULL,
 		PRIMARY KEY (ID)
 	  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin;
 	  `)
+	if err != nil {
+		return nil, fmt.Errorf("NewMysql: %w", err)
+	}
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
