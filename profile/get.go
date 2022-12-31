@@ -65,8 +65,9 @@ func getOltime(d *goquery.Document) int32 {
 	f := d.Find("#pbbs > li")
 	oltime := ""
 	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		if strings.Contains(s.Text(), "在线时间") {
-			oltime = s.Text()
+		t := s.Text()
+		if strings.Contains(t, "在线时间") {
+			oltime = t
 			return false
 		}
 		return true
@@ -102,8 +103,9 @@ func getLastview(d *goquery.Document) int64 {
 	f := d.Find("#pbbs > li")
 	lastv := ""
 	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		if strings.Contains(s.Text(), "最后访问") {
-			lastv = s.Text()
+		t := s.Text()
+		if strings.Contains(t, "最后访问") {
+			lastv = t
 			return false
 		}
 		return true
@@ -138,21 +140,21 @@ func getExtgroupids(d *goquery.Document) string {
 
 func getSex(d *goquery.Document) int32 {
 	f := d.Find("#ct > div > div.bm.bw0 > div > div.bm_c.u_profile > div:nth-child(1) > ul:nth-child(5) > li")
-	find := f.First()
+	find := f.First().Text()
 
 	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		if strings.Contains(s.Text(), "性别") {
-			find = s
+		t := s.Text()
+		if strings.Contains(t, "性别") {
+			find = t
 			return false
 		}
 		return true
 	})
-	sexS := find.Text()
 
 	switch {
-	case strings.Contains(sexS, "男"):
+	case strings.Contains(find, "男"):
 		return 1
-	case strings.Contains(sexS, "女"):
+	case strings.Contains(find, "女"):
 		return 2
 	default:
 		return 0
