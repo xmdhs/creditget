@@ -66,7 +66,7 @@ func (m *MysqlDb) GetDB() *sqlx.DB {
 	return m.db
 }
 
-func (m *MysqlDb) InsterCreditInfo(cxt context.Context, tx *sqlx.Tx, c *model.CreditInfo) error {
+func (m *MysqlDb) BatchInsterCreditInfo(cxt context.Context, tx *sqlx.Tx, c []model.CreditInfo) error {
 	_, err := tx.NamedExecContext(cxt, `REPLACE INTO credit
 	(uid, name, credits, extcredits1, extcredits2, extcredits3, extcredits4, extcredits5, extcredits6, extcredits7, extcredits8, oltime, groupname, posts, threads, friends, medal, lastview, extgroupids, sex)
 	VALUES(:uid, :name, :credits, :extcredits1, :extcredits2, :extcredits3, :extcredits4, :extcredits5, :extcredits6, :extcredits7, :extcredits8, :oltime, :groupname, :posts, :threads, :friends, :medal, :lastview, :extgroupids, :sex);

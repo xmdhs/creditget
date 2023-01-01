@@ -67,12 +67,12 @@ func main() {
 				done <- struct{}{}
 			}()
 
-			l := make([]*model.CreditInfo, 0, thread)
+			l := make([]model.CreditInfo, 0, thread)
 		B:
 			for {
 				select {
 				case v := <-ch:
-					l = append(l, v)
+					l = append(l, *v)
 				case <-done:
 					break B
 				}
@@ -83,11 +83,11 @@ func main() {
 					return err
 				}
 				defer tx.Rollback()
+				err = mysql.BatchInsterCreditInfo(cxt, tx, l)
+				if err != nil {
+					return err
+				}
 				for _, v := range l {
-					err = mysql.InsterCreditInfo(cxt, tx, v)
-					if err != nil {
-						return err
-					}
 					log.Println(v.Uid, v.Name, v.Credits)
 				}
 				err = mysql.InsterConfig(cxt, tx, &model.Confing{
