@@ -24,7 +24,7 @@ jobs:
 
     - name: Build
       run: |
-        go build -o creditget -trimpath -ldflags "-w -s"  main.go
+        CGO_ENABLED=0 go build -o creditget -trimpath -ldflags "-w -s"
 
     - name: Test
       run: go test -v .

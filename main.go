@@ -60,7 +60,7 @@ func main() {
 		w.Add(1)
 		go toget(cxt, i, &w, mysql, ch)
 		t++
-		if t > thread {
+		if t > thread || i == end-1 {
 			done := make(chan struct{}, 1)
 			go func() {
 				w.Wait()
