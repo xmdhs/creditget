@@ -87,9 +87,6 @@ func main() {
 				if err != nil {
 					return err
 				}
-				for _, v := range l {
-					log.Println(v.Uid, v.Name, v.Credits)
-				}
 				err = mysql.InsterConfig(cxt, tx, &model.Confing{
 					ID:    id,
 					VALUE: strconv.Itoa(i),
@@ -101,6 +98,9 @@ func main() {
 			}, getRetryOpts(20)...)
 			if err != nil {
 				panic(err)
+			}
+			for _, v := range l {
+				log.Println(v.Uid, v.Name, v.Credits)
 			}
 			t = 0
 			time.Sleep(time.Duration(sleepTime) * time.Millisecond)
