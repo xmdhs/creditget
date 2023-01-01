@@ -16,7 +16,12 @@ func (e ErrHttpCode) Error() string {
 }
 
 func GetCredit(uid int, c *http.Client) (*model.CreditInfo, error) {
-	reps, err := c.Get("https://www.mcbbs.net/home.php?mod=space&uid=" + strconv.Itoa(uid))
+	req, err := http.NewRequest("GET", "https://www.mcbbs.net/home.php?mod=space&uid="+strconv.Itoa(uid), nil)
+	if err != nil {
+		return nil, fmt.Errorf("GetCredit: %w", err)
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
+	reps, err := c.Do(req)
 	if reps != nil {
 		defer reps.Body.Close()
 	}
