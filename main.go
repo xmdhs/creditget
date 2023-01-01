@@ -26,6 +26,7 @@ var (
 	sleepTime int = 500
 
 	DBUrl string
+	id    int
 )
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 
 	var w sync.WaitGroup
 	i := 1
-	v, err := mysql.SelectConfig(cxt, 0)
+	v, err := mysql.SelectConfig(cxt, id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		panic(err)
 	}
@@ -90,7 +91,7 @@ func main() {
 					log.Println(v.Uid, v.Name, v.Credits)
 				}
 				err = mysql.InsterConfig(cxt, tx, &model.Confing{
-					ID:    0,
+					ID:    id,
 					VALUE: strconv.Itoa(i),
 				})
 				if err != nil {
@@ -145,9 +146,11 @@ func readConfig() {
 	thread = c.Thread
 	sleepTime = c.SleepTime
 	DBUrl = c.DBUrl
+	id = c.ID
 }
 
 type config struct {
+	ID        int               `json:"id"`
 	End       int               `json:"end"`
 	Points    map[string]string `json:"points"`
 	SleepTime int               `json:"sleepTime"`
