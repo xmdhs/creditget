@@ -5,13 +5,19 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestGetCredit(t *testing.T) {
-	m, err := GetCredit(80321, &http.Client{})
+	c := &http.Client{Timeout: 10 * time.Second}
+	m, err := GetCredit(1952312, c)
 	if err != nil {
 		t.Fatal(err)
 	}
 	b, _ := json.Marshal(m)
 	fmt.Println(string(b))
+
+	if m.Credits != -95175 {
+		t.FailNow()
+	}
 }

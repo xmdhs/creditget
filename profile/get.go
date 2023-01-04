@@ -15,7 +15,7 @@ func getName(d *goquery.Document) string {
 	return strings.TrimSpace(d.Find("#uhd > div.h.cl > h2").Text())
 }
 
-var numReg = regexp.MustCompile(`\d+`)
+var numReg = regexp.MustCompile(`-?\d+`)
 
 func getFriends(d *goquery.Document) int32 {
 	f := d.Find("#ct ul.cl.bbda.pbm.mbm > li > a:nth-child(2)").Text()
