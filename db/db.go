@@ -14,12 +14,12 @@ type MysqlDb struct {
 	db *sqlx.DB
 }
 
-func NewMysql(url string) (*MysqlDb, error) {
-	db, err := sqlx.Connect("mysql", url)
+func NewMysql(cxt context.Context, url string) (*MysqlDb, error) {
+	db, err := sqlx.ConnectContext(cxt, "mysql", url)
 	if err != nil {
 		return nil, fmt.Errorf("NewMysql: %w", err)
 	}
-	_, err = db.Exec(`create table if not exists credit (
+	_, err = db.ExecContext(cxt, `create table if not exists credit (
 		uid int(11) NOT NULL,
 		name text NOT NULL,
 		credits int(11) NOT NULL,
@@ -46,7 +46,7 @@ func NewMysql(url string) (*MysqlDb, error) {
 	if err != nil {
 		return nil, fmt.Errorf("NewMysql: %w", err)
 	}
-	_, err = db.Exec(` create table if not exists config (
+	_, err = db.ExecContext(cxt, ` create table if not exists config (
 		id int(11) NOT NULL,
 		value text NOT NULL,
 		PRIMARY KEY (ID)
@@ -55,7 +55,7 @@ func NewMysql(url string) (*MysqlDb, error) {
 	if err != nil {
 		return nil, fmt.Errorf("NewMysql: %w", err)
 	}
-	db.SetConnMaxLifetime(time.Minute * 3)
+	db.SetConnMaxLifetime(time.Minute * 5)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 

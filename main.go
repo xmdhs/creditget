@@ -30,11 +30,11 @@ var (
 )
 
 func main() {
-	mysql, err := db.NewMysql(DBUrl)
+	cxt := context.Background()
+	mysql, err := db.NewMysql(cxt, DBUrl)
 	if err != nil {
 		panic(err)
 	}
-	cxt := context.Background()
 
 	var w sync.WaitGroup
 	i := 1
@@ -78,6 +78,8 @@ func main() {
 				}
 			}
 			err := retry.Do(func() error {
+				cxt, c := context.WithTimeout(cxt, 10*time.Second)
+				defer c()
 				tx, err := mysql.GetDB().BeginTxx(cxt, &sql.TxOptions{})
 				if err != nil {
 					return err
@@ -95,7 +97,7 @@ func main() {
 					return err
 				}
 				return tx.Commit()
-			}, getRetryOpts(20)...)
+			}, getRetryOpts(cxt, 20)...)
 			if err != nil {
 				panic(err)
 			}
@@ -118,9 +120,9 @@ func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb, c
 	var p *model.CreditInfo
 	err := retry.Do(func() error {
 		var err error
-		p, err = profile.GetCredit(uid, c)
+		p, err = profile.GetCredit(cxt, uid, c)
 		return err
-	}, getRetryOpts(20)...)
+	}, getRetryOpts(cxt, 20)...)
 	if err != nil {
 		panic(err)
 	}
@@ -159,7 +161,7 @@ type config struct {
 	DBUrl     string            `json:"dBUrl"`
 }
 
-func getRetryOpts(attempts uint) []retry.Option {
+func getRetryOpts(cxt context.Context, attempts uint) []retry.Option {
 	if attempts == 0 {
 		attempts = 15
 	}
@@ -168,6 +170,7 @@ func getRetryOpts(attempts uint) []retry.Option {
 		retry.Delay(time.Second * 3),
 		retry.LastErrorOnly(true),
 		retry.MaxDelay(5 * time.Minute),
+		retry.Context(cxt),
 		retry.OnRetry(func(n uint, err error) {
 			log.Printf("retry %d: %v", n, err)
 		}),

@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,8 +16,8 @@ func (e ErrHttpCode) Error() string {
 	return fmt.Sprintf("http code: %v", int(e))
 }
 
-func GetCredit(uid int, c *http.Client) (*model.CreditInfo, error) {
-	req, err := http.NewRequest("GET", "https://www.mcbbs.net/home.php?mod=space&uid="+strconv.Itoa(uid), nil)
+func GetCredit(cxt context.Context, uid int, c *http.Client) (*model.CreditInfo, error) {
+	req, err := http.NewRequestWithContext(cxt, "GET", "https://www.mcbbs.net/home.php?mod=space&uid="+strconv.Itoa(uid), nil)
 	if err != nil {
 		return nil, fmt.Errorf("GetCredit: %w", err)
 	}
