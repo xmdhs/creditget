@@ -97,7 +97,7 @@ func main() {
 					return err
 				}
 				return tx.Commit()
-			}, getRetryOpts(cxt, 20)...)
+			}, getRetryOpts(cxt, 0)...)
 			if err != nil {
 				panic(err)
 			}
@@ -122,7 +122,7 @@ func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb, c
 		var err error
 		p, err = profile.GetCredit(cxt, uid, c)
 		return err
-	}, getRetryOpts(cxt, 20)...)
+	}, getRetryOpts(cxt, 0)...)
 	if err != nil {
 		panic(err)
 	}
@@ -167,9 +167,8 @@ func getRetryOpts(cxt context.Context, attempts uint) []retry.Option {
 	}
 	return []retry.Option{
 		retry.Attempts(attempts),
-		retry.Delay(time.Second * 3),
 		retry.LastErrorOnly(true),
-		retry.MaxDelay(5 * time.Minute),
+		retry.MaxDelay(20 * time.Minute),
 		retry.Context(cxt),
 		retry.OnRetry(func(n uint, err error) {
 			log.Printf("retry %d: %v", n, err)
