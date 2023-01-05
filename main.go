@@ -162,9 +162,6 @@ type config struct {
 }
 
 func getRetryOpts(cxt context.Context, attempts uint) []retry.Option {
-	if attempts == 0 {
-		attempts = 15
-	}
 	return []retry.Option{
 		retry.Attempts(attempts),
 		retry.LastErrorOnly(true),
