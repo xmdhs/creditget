@@ -22,6 +22,6 @@ func Test_creditPrint_creditInfo2string(t *testing.T) {
 		t.Fatal(err)
 	}
 	print, _ := printTableName(model.CreditInfo{}, fieldName)
-	s := print.creditInfo2string(*p, func(v any, field string) string { return "" })
+	s := print.creditInfo2string(*p, change, 1)
 	fmt.Println(s)
 }

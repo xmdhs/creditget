@@ -58,10 +58,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	p, table := printTableName(model.CreditInfo{}, fieldName)
+	p, table := printTableName(model.CreditInfo{}, fmap)
 
 	for _, v := range needSort {
-		output(cxt, fieldName[v], v, table, mysql, p, true)
+		output(cxt, fmap[v], v, table, mysql, p, true)
 	}
 	output(cxt, "分积总", "credits", table, mysql, p, true)
 
@@ -90,15 +90,16 @@ func output(cxt context.Context, name, field, table string, db db.DB, p *creditP
 	bw := bufio.NewWriter(f)
 	defer bw.Flush()
 	bw.WriteString(table)
-	bw.WriteByte('\n')
 
+	i := 0
 	for offset := 0; offset < 2000; offset += 500 {
 		c, err := db.GetRanks(cxt, field, 500, offset, desc)
 		if err != nil {
 			panic(err)
 		}
 		for _, v := range c {
-			s := p.creditInfo2string(v, Lastview)
+			i++
+			s := p.creditInfo2string(v, change, i)
 			bw.WriteString(s)
 			bw.WriteByte('\n')
 		}

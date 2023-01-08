@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/xmdhs/creditget/model"
 )
@@ -18,38 +20,48 @@ func printTableName(m model.CreditInfo, fmap map[string]string) (*creditPrint, s
 		k: map[int]string{},
 	}
 	sw := strings.Builder{}
-	sw.WriteString("| ")
+	sw.WriteString("| 排名 |")
 	mt := reflect.TypeOf(m)
 	fl := mt.NumField()
 	for i := 0; i < fl; i++ {
 		f := mt.Field(i)
 		k := f.Tag.Get("json")
+		if k == "" {
+			k = f.Name
+		}
+		c.k[i] = k
 		v := fmap[k]
 		if v == "" {
 			v = k
 		}
-		c.k[i] = v
 		sw.WriteString(v)
 		if i < fl-1 {
 			sw.WriteString(" | ")
 		}
 	}
-	sw.WriteString(" |")
+	sw.WriteString(" |\n")
+	sw.WriteString("|")
+	for i := 0; i < fl+1; i++ {
+		sw.WriteString(" - |")
+	}
+	sw.WriteByte('\n')
 	return &c, sw.String()
 }
 
-func (c *creditPrint) creditInfo2string(m model.CreditInfo, change func(v any, field string) string) string {
+func (c *creditPrint) creditInfo2string(m model.CreditInfo, change func(v any, field string) string, i int) string {
 	mv := reflect.ValueOf(m)
 	fl := mv.NumField()
 	sw := strings.Builder{}
 	sw.WriteString("| ")
+	sw.WriteString(strconv.Itoa(i))
+	sw.WriteString(" | ")
 	for i := 0; i < fl; i++ {
 		v := mv.Field(i)
 		f := c.k[i]
 		av := v.Interface()
 		rv := change(av, f)
 		if rv != "" {
-			continue
+			av = rv
 		}
 		sw.WriteString(escape(fmt.Sprint(av)))
 		sw.WriteString(" | ")
@@ -60,14 +72,24 @@ func (c *creditPrint) creditInfo2string(m model.CreditInfo, change func(v any, f
 
 var cnLoc, _ = time.LoadLocation("Asia/Shanghai")
 
-func Lastview(v any, f string) string {
-	if f != "lastview" {
-		return ""
+func change(v any, f string) string {
+	switch f {
+	case "lastview":
+		i := v.(int64)
+		t := time.Unix(i, 0)
+		t = t.In(cnLoc)
+		return t.Format("2006-01-02 15:04:05")
+	case "sex":
+		i := v.(int32)
+		if i == 1 {
+			return "男"
+		}
+		if i == 2 {
+			return "女"
+		}
+		return "保密"
 	}
-	i := v.(int64)
-	t := time.Unix(i, 0)
-	t = t.In(cnLoc)
-	return t.Format("2006-01-02 15:04:05")
+	return ""
 }
 
 var escapeWord = []string{
