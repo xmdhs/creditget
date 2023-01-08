@@ -59,6 +59,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	GetGroupSum(cxt, mysql)
+
 	p, table := printTableName(model.CreditInfo{}, fmap)
 
 	for _, v := range needSort {
@@ -112,4 +115,28 @@ func must[K any](k K, err error) K {
 		panic(err)
 	}
 	return k
+}
+
+func GetGroupSum(cxt context.Context, db db.DB) {
+	nl, err := db.GetGroupname(cxt)
+	if err != nil {
+		panic(err)
+	}
+	f, err := os.Create(`组人数统计（不精准）.md`)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	for _, v := range nl {
+		if v == "" {
+			continue
+		}
+		i, err := db.GetGroupCount(cxt, v)
+		if err != nil {
+			panic(err)
+		}
+		f.WriteString(v + ": ")
+		f.WriteString(strconv.Itoa(i))
+		f.WriteString(" \n")
+	}
 }

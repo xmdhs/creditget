@@ -15,6 +15,8 @@ type DB interface {
 	Begin(ctx context.Context, opts *sql.TxOptions) (*Tx, error)
 	GetAvailableUserSum(cxt context.Context) (int, error)
 	GetCreditInfo(cxt context.Context, uid int) (*model.CreditInfo, error)
+	GetGroupCount(cxt context.Context, groupname string) (int, error)
+	GetGroupname(cxt context.Context) ([]string, error)
 	GetNilSum(cxt context.Context, field string) (int, error)
 	GetRank(cxt context.Context, uid int, field string) (int, error)
 	GetRanks(cxt context.Context, field string, limit int, offset int, desc bool) ([]model.CreditInfo, error)

@@ -177,3 +177,23 @@ func (m *MysqlDb) GetNilSum(cxt context.Context, field string) (int, error) {
 	}
 	return i, nil
 }
+
+func (m *MysqlDb) GetGroupname(cxt context.Context) ([]string, error) {
+	sl := []string{}
+
+	err := m.db.SelectContext(cxt, &sl, `SELECT DISTINCT groupname FROM credit`)
+	if err != nil {
+		return nil, fmt.Errorf("GetGroupname: %w", err)
+	}
+	return sl, nil
+}
+
+func (m *MysqlDb) GetGroupCount(cxt context.Context, groupname string) (int, error) {
+	i := 0
+	like := "%" + groupname + "%"
+	err := m.db.GetContext(cxt, &i, m.db.Rebind(`SELECT COUNT(*) FROM credit WHERE groupname = ? OR extgroupids LIKE ?`), groupname, like)
+	if err != nil {
+		return 0, fmt.Errorf("GetGroupCount: %w", err)
+	}
+	return i, nil
+}
