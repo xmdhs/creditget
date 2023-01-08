@@ -12,9 +12,10 @@ import (
 
 type DB interface {
 	BatchInsterCreditInfo(cxt context.Context, tx *sqlx.Tx, c []model.CreditInfo) error
-	GetCreditInfo(cxt context.Context, uid int) (*model.CreditInfo, error)
 	Begin(ctx context.Context, opts *sql.TxOptions) (*Tx, error)
+	GetCreditInfo(cxt context.Context, uid int) (*model.CreditInfo, error)
 	GetRank(cxt context.Context, uid int, field string) (int, error)
+	GetRanks(cxt context.Context, field string, limit int, offset int, desc bool) ([]model.CreditInfo, error)
 	InsterConfig(cxt context.Context, tx *sqlx.Tx, c *model.Confing) error
 	SelectConfig(cxt context.Context, id int) (*model.Confing, error)
 }

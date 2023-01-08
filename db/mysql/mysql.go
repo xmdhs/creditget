@@ -14,6 +14,8 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+var _ db.DB = &MysqlDb{}
+
 type MysqlDb struct {
 	db *sqlx.DB
 }
@@ -118,7 +120,7 @@ var ErrNotVaildFidld = errors.New("无效的字段")
 
 func (m *MysqlDb) GetRank(cxt context.Context, uid int, field string) (int, error) {
 	if !slices.Contains(model.CreditInfoFileds, field) {
-		return 0, ErrNotVaildFidld
+		return 0, fmt.Errorf("GetRank: %w", ErrNotVaildFidld)
 	}
 
 	i := 0
@@ -127,4 +129,51 @@ func (m *MysqlDb) GetRank(cxt context.Context, uid int, field string) (int, erro
 		return 0, fmt.Errorf("GetRank: %w", err)
 	}
 	return i + 1, nil
+}
+
+func (m *MysqlDb) GetRanks(cxt context.Context, field string, limit, offset int, desc bool) ([]model.CreditInfo, error) {
+	if !slices.Contains(model.CreditInfoFileds, field) {
+		return nil, fmt.Errorf("GetRanks: %w", ErrNotVaildFidld)
+	}
+	word := "ASC"
+	if desc {
+		word = "DESC"
+	}
+
+	ml := make([]model.CreditInfo, 0, limit)
+	err := m.db.SelectContext(cxt, &ml, m.db.Rebind(`SELECT * FROM credit ORDER BY `+field+` `+word+` LIMIT ? OFFSET ?`), limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("GetRanks: %w", err)
+	}
+	return ml, nil
+}
+
+func (m *MysqlDb) GetSum(cxt context.Context) (int, error) {
+	i := 0
+	err := m.db.GetContext(cxt, &i, `SELECT COUNT(*) FROM credit`)
+	if err != nil {
+		return 0, fmt.Errorf("GetSum: %w", err)
+	}
+	return i, nil
+}
+
+func (m *MysqlDb) GetAvailableUserSum(cxt context.Context) (int, error) {
+	i := 0
+	err := m.db.GetContext(cxt, &i, `SELECT COUNT(*) FROM credit WHERE NOT lastview = 0`)
+	if err != nil {
+		return 0, fmt.Errorf("GetAvailableUserSum: %w", err)
+	}
+	return i, nil
+}
+
+func (m *MysqlDb) GetNilSum(cxt context.Context, field string) (int, error) {
+	if !slices.Contains(model.CreditInfoFileds, field) {
+		return 0, fmt.Errorf("GetNilSum: %w", ErrNotVaildFidld)
+	}
+	i := 0
+	err := m.db.GetContext(cxt, &i, `SELECT COUNT(*) FROM credit WHERE `+field+` = 0 AND NOT lastview = 0`)
+	if err != nil {
+		return 0, fmt.Errorf("GetNilSum: %w", err)
+	}
+	return i, nil
 }

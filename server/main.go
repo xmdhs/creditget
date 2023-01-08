@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/xmdhs/creditget/db"
+	"github.com/xmdhs/creditget/db/cache"
 	"github.com/xmdhs/creditget/db/mysql"
 	"github.com/xmdhs/creditget/model"
 )
@@ -24,10 +25,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	cacheDB := cache.NewMemCache(50000000, db)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/userinfo", UserInfo(db))
-	mux.HandleFunc("/rank", rankHandler(db))
+	mux.HandleFunc("/userinfo", UserInfo(cacheDB))
+	mux.HandleFunc("/rank", rankHandler(cacheDB))
 
 	s := http.Server{
 		ReadTimeout:       10 * time.Second,
