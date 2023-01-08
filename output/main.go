@@ -46,7 +46,8 @@ func readConfig() config {
 	return c
 }
 
-var needSort = []string{"credits", "oltime", "posts", "threads", "friends", "medal"}
+var needSort = []string{"credits", "oltime", "posts", "threads", "friends", "medal",
+	"extcredits1", "extcredits2", "extcredits3", "extcredits4", "extcredits5", "extcredits6", "extcredits7", "extcredits8"}
 
 func main() {
 	c := readConfig()
