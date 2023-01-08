@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"sort"
 	"strconv"
 
 	"github.com/xmdhs/creditget/db"
@@ -127,6 +128,11 @@ func GetGroupSum(cxt context.Context, db db.DB) {
 		panic(err)
 	}
 	defer f.Close()
+	type g struct {
+		g string
+		i int
+	}
+	gl := []g{}
 	for _, v := range nl {
 		if v == "" {
 			continue
@@ -135,8 +141,17 @@ func GetGroupSum(cxt context.Context, db db.DB) {
 		if err != nil {
 			panic(err)
 		}
-		f.WriteString(v + ": ")
-		f.WriteString(strconv.Itoa(i))
+		gl = append(gl, g{
+			g: v,
+			i: i,
+		})
+	}
+	sort.Slice(gl, func(i, j int) bool {
+		return gl[i].i > gl[j].i
+	})
+	for _, v := range gl {
+		f.WriteString(v.g + ": ")
+		f.WriteString(strconv.Itoa(v.i))
 		f.WriteString(" \n")
 	}
 }
