@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/xmdhs/creditget/db"
 	"github.com/xmdhs/creditget/db/cache"
 	"github.com/xmdhs/creditget/db/mysql"
@@ -27,9 +28,9 @@ func main() {
 	}
 	cacheDB := cache.NewMemCache(50000000, db)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/userinfo", UserInfo(cacheDB))
-	mux.HandleFunc("/rank", rankHandler(cacheDB))
+	mux := httprouter.New()
+	mux.GET("/userinfo/:uid", UserInfo(cacheDB))
+	mux.GET("/rank/:uid/:field", rankHandler(cacheDB))
 
 	s := http.Server{
 		ReadTimeout:       10 * time.Second,
@@ -47,9 +48,9 @@ type ApiRep[V any] struct {
 	Data V      `json:"data"`
 }
 
-func UserInfo(db db.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		uid := r.FormValue("uid")
+func UserInfo(db db.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		uid := p.ByName("uid")
 		cxt := r.Context()
 		uidi, err := strconv.Atoi(uid)
 		if err != nil {
@@ -67,16 +68,16 @@ func UserInfo(db db.DB) http.HandlerFunc {
 	}
 }
 
-func rankHandler(db db.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		uid := r.FormValue("uid")
+func rankHandler(db db.DB) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		uid := p.ByName("uid")
 		uidi, err := strconv.Atoi(uid)
 		if err != nil {
 			handleErr(w, model.ApiErrInput, 400, err)
 			return
 		}
 		cxt := r.Context()
-		field := r.FormValue("field")
+		field := p.ByName("field")
 		if field == "" {
 			handleErr(w, model.ApiErrInput, 400, errors.New("field 不得为空"))
 			return
