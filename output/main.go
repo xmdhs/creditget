@@ -152,6 +152,6 @@ func GetGroupSum(cxt context.Context, db db.DB) {
 	for _, v := range gl {
 		f.WriteString(v.g + ": ")
 		f.WriteString(strconv.Itoa(v.i))
-		f.WriteString(" \n")
+		f.WriteString("  \n")
 	}
 }
