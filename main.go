@@ -13,7 +13,9 @@ import (
 	"time"
 
 	"github.com/avast/retry-go/v4"
+	"github.com/jmoiron/sqlx"
 	"github.com/xmdhs/creditget/db"
+	"github.com/xmdhs/creditget/db/mysql"
 	"github.com/xmdhs/creditget/model"
 	"github.com/xmdhs/creditget/profile"
 )
@@ -31,7 +33,7 @@ var (
 
 func main() {
 	cxt := context.Background()
-	mysql, err := db.NewMysql(cxt, DBUrl)
+	mysql, err := mysql.NewMysql(cxt, DBUrl)
 	if err != nil {
 		panic(err)
 	}
@@ -80,23 +82,24 @@ func main() {
 			err := retry.Do(func() error {
 				cxt, c := context.WithTimeout(cxt, 10*time.Second)
 				defer c()
-				tx, err := mysql.GetDB().BeginTxx(cxt, &sql.TxOptions{})
+				tx, err := mysql.Begin(cxt, &sql.TxOptions{})
 				if err != nil {
 					return err
 				}
-				defer tx.Rollback()
-				err = mysql.BatchInsterCreditInfo(cxt, tx, l)
-				if err != nil {
-					return err
-				}
-				err = mysql.InsterConfig(cxt, tx, &model.Confing{
-					ID:    id,
-					VALUE: strconv.Itoa(i),
+				return tx.Transaction(cxt, func(cxt context.Context, tx *sqlx.Tx) error {
+					err = mysql.BatchInsterCreditInfo(cxt, tx, l)
+					if err != nil {
+						return err
+					}
+					err = mysql.InsterConfig(cxt, tx, &model.Confing{
+						ID:    id,
+						VALUE: strconv.Itoa(i),
+					})
+					if err != nil {
+						return err
+					}
+					return nil
 				})
-				if err != nil {
-					return err
-				}
-				return tx.Commit()
 			}, getRetryOpts(cxt, 0)...)
 			if err != nil {
 				panic(err)
@@ -115,7 +118,7 @@ var c = &http.Client{
 	Timeout: 10 * time.Second,
 }
 
-func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db *db.MysqlDb, ch chan *model.CreditInfo) {
+func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db db.DB, ch chan *model.CreditInfo) {
 	defer wait.Done()
 	var p *model.CreditInfo
 	err := retry.Do(func() error {
@@ -149,6 +152,11 @@ func readConfig() {
 	sleepTime = c.SleepTime
 	DBUrl = c.DBUrl
 	id = c.ID
+
+	u := os.Getenv("mysqldsn")
+	if u != "" {
+		DBUrl = u
+	}
 }
 
 type config struct {

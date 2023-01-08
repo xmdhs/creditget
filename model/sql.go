@@ -27,3 +27,5 @@ type Confing struct {
 	ID    int    `db:"id"`
 	VALUE string `db:"value"`
 }
+
+var CreditInfoFileds = []string{"uid", "name", "credits", "extcredits1", "extcredits2", "extcredits3", "extcredits4", "extcredits5", "extcredits6", "extcredits7", "extcredits8", "oltime", "groupname", "posts", "threads", "friends", "medal", "lastview", "extgroupids", "sex"}
