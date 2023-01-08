@@ -64,6 +64,7 @@ func UserInfo(db db.DB) httprouter.Handle {
 		}
 		b, _ := json.Marshal(model.ApiRep[model.CreditInfo]{Data: *c})
 		w.Header().Set("Cache-Control", "max-age=3600")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(b)
 	}
 }
@@ -89,6 +90,7 @@ func rankHandler(db db.DB) httprouter.Handle {
 		}
 		b, _ := json.Marshal(model.ApiRep[int]{Data: rank})
 		w.Header().Set("Cache-Control", "max-age=3600")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(b)
 	}
 }
