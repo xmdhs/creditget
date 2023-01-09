@@ -62,33 +62,13 @@ func getCredits(d *goquery.Document) [9]int32 {
 }
 
 func getOltime(d *goquery.Document) int32 {
-	f := d.Find("#pbbs > li")
-	oltime := ""
-	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		t := s.Text()
-		if strings.Contains(t, "在线时间") {
-			oltime = t
-			return false
-		}
-		return true
-	})
-	return toInt32(numReg.FindString(oltime))
+	f := d.Find("#pbbs > li:has(em:contains(在线时间))")
+	return toInt32(numReg.FindString(f.Text()))
 }
 
 func getGroupname(d *goquery.Document) string {
-	ems := d.Find("em.xg1")
-	findS := ems.First()
-
-	ems.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		t := s.Text()
-		if strings.Contains(t, "用户组") && !strings.Contains(t, "扩展用户组") {
-			findS = s
-			return false
-		}
-		return true
-	})
-
-	return findS.Parent().Find("a").Text()
+	f := d.Find("ul > li:has(em.xg1:contains(用户组):not(:contains(扩展用户组))) > span > a")
+	return f.Text()
 }
 
 func getMedal(d *goquery.Document) int32 {
@@ -100,17 +80,8 @@ var timeReg = regexp.MustCompile(`\d{4}-\d{1,2}-\d{1,2} \d{2}:\d{2}`)
 var shanhai, _ = time.LoadLocation("Asia/Shanghai")
 
 func getLastview(d *goquery.Document) int64 {
-	f := d.Find("#pbbs > li")
-	lastv := ""
-	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		t := s.Text()
-		if strings.Contains(t, "最后访问") {
-			lastv = t
-			return false
-		}
-		return true
-	})
-	ts := timeReg.FindString(lastv)
+	f := d.Find("#pbbs > li:has(em:contains(最后访问))")
+	ts := timeReg.FindString(f.Text())
 	t, err := time.ParseInLocation("2006-1-2 15:04", ts, shanhai)
 	if err != nil {
 		return 0
@@ -119,37 +90,15 @@ func getLastview(d *goquery.Document) int64 {
 }
 
 func getExtgroupids(d *goquery.Document) string {
-	ems := d.Find("em.xg1")
-	var findS *goquery.Selection
-
-	ems.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		if strings.Contains(s.Text(), "扩展用户组") {
-			findS = s
-			return false
-		}
-		return true
-	})
-	if findS == nil {
-		return ""
-	}
-
-	p := findS.Parent()
-	findS.Remove()
-	return p.Text()
+	f := d.Find("ul > li:has(em.xg1:contains(扩展用户组))")
+	f.Find("em").Remove()
+	return f.Text()
 }
 
 func getSex(d *goquery.Document) int32 {
-	f := d.Find("#ct > div > div.bm.bw0 > div > div.bm_c.u_profile > div:nth-child(1) > ul:nth-child(5) > li")
-	find := f.First().Text()
-
-	f.EachWithBreak(func(i int, s *goquery.Selection) bool {
-		t := s.Text()
-		if strings.Contains(t, "性别") {
-			find = t
-			return false
-		}
-		return true
-	})
+	f := d.Find("#ct ul.pf_l.cl	> li:has(em:contains(性别))")
+	f.Find("em").Remove()
+	find := f.Text()
 
 	switch {
 	case strings.Contains(find, "男"):
