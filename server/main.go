@@ -29,6 +29,15 @@ func main() {
 	cacheDB := cache.NewMemCache(50000000, db)
 
 	mux := httprouter.New()
+	mux.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Access-Control-Request-Method") != "" {
+			header := w.Header()
+			header.Set("Access-Control-Allow-Methods", r.Header.Get("Access-Control-Request-Method"))
+			header.Set("Access-Control-Allow-Origin", "*")
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
 	mux.GET("/userinfo/:uid", UserInfo(cacheDB))
 	mux.GET("/rank/:uid/:field", rankHandler(cacheDB))
 
@@ -37,7 +46,7 @@ func main() {
 		ReadHeaderTimeout: 5 * time.Second,
 		WriteTimeout:      60 * time.Second,
 		Addr:              ":" + port,
-		Handler:           mux,
+		Handler:           cors(mux),
 	}
 	s.ListenAndServe()
 }
@@ -102,4 +111,13 @@ func handleErr(w http.ResponseWriter, code model.ApiErr, httpCode int, err error
 	b, _ := json.Marshal(e)
 	http.Error(w, string(b), httpCode)
 	log.Println(err)
+}
+
+func cors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Private-Network", "true")
+		h.ServeHTTP(w, r)
+	})
 }
