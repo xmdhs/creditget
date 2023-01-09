@@ -15,6 +15,7 @@ import (
 	"github.com/xmdhs/creditget/db/cache"
 	"github.com/xmdhs/creditget/db/mysql"
 	"github.com/xmdhs/creditget/model"
+	"github.com/xmdhs/creditget/profile"
 )
 
 func main() {
@@ -59,6 +60,7 @@ type ApiRep[V any] struct {
 
 func UserInfo(db db.DB) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		s := r.FormValue("now")
 		uid := p.ByName("uid")
 		cxt := r.Context()
 		uidi, err := strconv.Atoi(uid)
@@ -66,7 +68,12 @@ func UserInfo(db db.DB) httprouter.Handle {
 			handleErr(w, model.ApiErrInput, 400, err)
 			return
 		}
-		c, err := db.GetCreditInfo(cxt, uidi)
+		var c *model.CreditInfo
+		if s == "true" {
+			c, err = profile.GetCredit(cxt, uidi, &http.Client{Timeout: 10 * time.Second})
+		} else {
+			c, err = db.GetCreditInfo(cxt, uidi)
+		}
 		if err != nil {
 			handleErr(w, model.ApiDateBaseFail, 500, err)
 			return
