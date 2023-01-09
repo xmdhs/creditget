@@ -18,17 +18,17 @@ func getName(d *goquery.Document) string {
 var numReg = regexp.MustCompile(`-?\d+`)
 
 func getFriends(d *goquery.Document) int32 {
-	f := d.Find("#ct ul.cl.bbda.pbm.mbm > li > a:nth-child(2)").Text()
+	f := d.Find("#ct li > a:contains(好友数)").Text()
 	return toInt32(numReg.FindString(f))
 }
 
 func getPosts(d *goquery.Document) int32 {
-	f := d.Find("#ct ul.cl.bbda.pbm.mbm > li > a:nth-child(4)").Text()
+	f := d.Find("#ct li > a:contains(回帖数)").Text()
 	return toInt32(numReg.FindString(f))
 }
 
 func getThreads(d *goquery.Document) int32 {
-	f := d.Find("#ct ul.cl.bbda.pbm.mbm > li > a:nth-child(6)").Text()
+	f := d.Find("#ct li > a:contains(主题数)").Text()
 	return toInt32(numReg.FindString(f))
 }
 
