@@ -67,7 +67,7 @@ func getOltime(d *goquery.Document) int32 {
 }
 
 func getGroupname(d *goquery.Document) string {
-	f := d.Find("ul > li:has(em.xg1:contains(用户组):not(:contains(扩展用户组))) > span > a")
+	f := d.Find("#ct ul > li:has(em.xg1:contains(用户组):not(:contains(扩展用户组))) > span > a")
 	return f.Text()
 }
 
@@ -90,7 +90,7 @@ func getLastview(d *goquery.Document) int64 {
 }
 
 func getExtgroupids(d *goquery.Document) string {
-	f := d.Find("ul > li:has(em.xg1:contains(扩展用户组))")
+	f := d.Find("#ct ul > li:has(em.xg1:contains(扩展用户组))")
 	f.Find("em").Remove()
 	return f.Text()
 }
