@@ -61,14 +61,14 @@ func main() {
 		panic(err)
 	}
 
-	GetGroupSum(cxt, mysql)
+	getGroupSum(cxt, mysql)
 
 	p, table := printTableName(model.CreditInfo{}, fmap)
 
+	output(cxt, "分积总", "credits", table, mysql, p, false)
 	for _, v := range needSort {
 		output(cxt, fmap[v], v, table, mysql, p, true)
 	}
-	output(cxt, "分积总", "credits", table, mysql, p, true)
 
 	f, err := os.Create("一些统计.md")
 	if err != nil {
@@ -118,7 +118,7 @@ func must[K any](k K, err error) K {
 	return k
 }
 
-func GetGroupSum(cxt context.Context, db db.DB) {
+func getGroupSum(cxt context.Context, db db.DB) {
 	nl, err := db.GetGroupname(cxt)
 	if err != nil {
 		panic(err)
