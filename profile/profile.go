@@ -3,12 +3,14 @@ package profile
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/xmdhs/creditget/model"
+	"golang.org/x/net/html/charset"
 )
 
 type ErrHttpCode int
@@ -42,9 +44,22 @@ func GetCredit(cxt context.Context, userurl string, uid int, c *http.Client) (*m
 		return nil, fmt.Errorf("GetCredit: %w", ErrHttpCode(reps.StatusCode))
 	}
 
-	d, err := goquery.NewDocumentFromReader(reps.Body)
+	r, err := charset.NewReader(reps.Body, reps.Header.Get("Content-Type"))
 	if err != nil {
 		return nil, fmt.Errorf("GetCredit: %w", err)
+	}
+
+	m, err := CreditInfoDecode(r, uid)
+	if err != nil {
+		return nil, fmt.Errorf("GetCredit: %w", err)
+	}
+	return m, nil
+}
+
+func CreditInfoDecode(r io.Reader, uid int) (*model.CreditInfo, error) {
+	d, err := goquery.NewDocumentFromReader(r)
+	if err != nil {
+		return nil, fmt.Errorf("CreditInfoDecode: %w", err)
 	}
 	m := model.CreditInfo{}
 
