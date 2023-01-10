@@ -47,8 +47,7 @@ func readConfig() config {
 	return c
 }
 
-var needSort = []string{"credits", "oltime", "posts", "threads", "friends", "medal",
-	"extcredits1", "extcredits2", "extcredits3", "extcredits4", "extcredits5", "extcredits6", "extcredits7", "extcredits8"}
+var needSort = []string{"credits", "oltime", "posts", "threads", "friends", "medal"}
 
 func main() {
 	c := readConfig()
@@ -59,6 +58,13 @@ func main() {
 	mysql, err := mysql.NewMysql(cxt, c.DBUrl)
 	if err != nil {
 		panic(err)
+	}
+
+	for k, v := range c.Points {
+		if v == "" {
+			continue
+		}
+		needSort = append(needSort, k)
 	}
 
 	getGroupSum(cxt, mysql)
