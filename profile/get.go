@@ -12,7 +12,9 @@ import (
 )
 
 func getName(d *goquery.Document) string {
-	return strings.TrimSpace(d.Find("#pt > div > a[href*=uid]").Text())
+	f := d.Find("#ct div.bm_c h2:has(span:contains(UID))")
+	f.Find("span").Remove()
+	return strings.TrimSpace(f.Text())
 }
 
 var numReg = regexp.MustCompile(`-?\d+`)

@@ -17,7 +17,7 @@ func Test_printTableName(t *testing.T) {
 }
 
 func Test_creditPrint_creditInfo2string(t *testing.T) {
-	p, err := profile.GetCredit(context.Background(), 1770442, &http.Client{Timeout: 10 * time.Second})
+	p, err := profile.GetCredit(context.Background(), "https://www.mcbbs.net/home.php?mod=space", 1770442, &http.Client{Timeout: 10 * time.Second})
 	if err != nil {
 		t.Fatal(err)
 	}

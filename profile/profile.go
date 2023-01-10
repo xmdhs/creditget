@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
@@ -16,8 +17,16 @@ func (e ErrHttpCode) Error() string {
 	return fmt.Sprintf("http code: %v", int(e))
 }
 
-func GetCredit(cxt context.Context, uid int, c *http.Client) (*model.CreditInfo, error) {
-	req, err := http.NewRequestWithContext(cxt, "GET", "https://www.mcbbs.net/home.php?mod=space&uid="+strconv.Itoa(uid), nil)
+func GetCredit(cxt context.Context, userurl string, uid int, c *http.Client) (*model.CreditInfo, error) {
+	u, err := url.Parse(userurl)
+	if err != nil {
+		return nil, fmt.Errorf("GetCredit: %w", err)
+	}
+	q := u.Query()
+	q.Set("uid", strconv.Itoa(uid))
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(cxt, "GET", u.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("GetCredit: %w", err)
 	}

@@ -26,6 +26,7 @@ var (
 	end       int
 	thread    int
 	sleepTime int = 500
+	api       string
 
 	DBUrl string
 	id    int
@@ -123,7 +124,7 @@ func toget(cxt context.Context, uid int, wait *sync.WaitGroup, db db.DB, ch chan
 	var p *model.CreditInfo
 	err := retry.Do(func() error {
 		var err error
-		p, err = profile.GetCredit(cxt, uid, c)
+		p, err = profile.GetCredit(cxt, api, uid, c)
 		return err
 	}, getRetryOpts(cxt, 0)...)
 	if err != nil {
@@ -152,6 +153,7 @@ func readConfig() {
 	sleepTime = c.SleepTime
 	DBUrl = c.DBUrl
 	id = c.ID
+	api = c.UserUrl
 
 	u := os.Getenv("mysqldsn")
 	if u != "" {
@@ -167,6 +169,7 @@ type config struct {
 	Start     int               `json:"start"`
 	Thread    int               `json:"thread"`
 	DBUrl     string            `json:"dBUrl"`
+	UserUrl   string            `json:"userURL"`
 }
 
 func getRetryOpts(cxt context.Context, attempts uint) []retry.Option {

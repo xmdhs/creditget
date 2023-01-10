@@ -21,6 +21,7 @@ import (
 func main() {
 	mysqlDsn := os.Getenv("DSN")
 	port := os.Getenv("PORT")
+	userUrl := os.Getenv("USER_URL")
 
 	cxt := context.Background()
 	db, err := mysql.NewMysql(cxt, mysqlDsn)
@@ -28,6 +29,10 @@ func main() {
 		panic(err)
 	}
 	cacheDB := cache.NewMemCache(50000000, db)
+
+	if userUrl == "" {
+		userUrl = "https://www.mcbbs.net/home.php?mod=space"
+	}
 
 	mux := httprouter.New()
 	mux.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +44,7 @@ func main() {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	mux.GET("/userinfo/:uid", UserInfo(cacheDB))
+	mux.GET("/userinfo/:uid", UserInfo(cacheDB, userUrl))
 	mux.GET("/rank/:uid/:field", rankHandler(cacheDB))
 
 	s := http.Server{
@@ -58,7 +63,7 @@ type ApiRep[V any] struct {
 	Data V      `json:"data"`
 }
 
-func UserInfo(db db.DB) httprouter.Handle {
+func UserInfo(db db.DB, userUrl string) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		s := r.FormValue("now")
 		uid := p.ByName("uid")
@@ -70,7 +75,7 @@ func UserInfo(db db.DB) httprouter.Handle {
 		}
 		var c *model.CreditInfo
 		if s == "true" {
-			c, err = profile.GetCredit(cxt, uidi, &http.Client{Timeout: 10 * time.Second})
+			c, err = profile.GetCredit(cxt, userUrl, uidi, &http.Client{Timeout: 10 * time.Second})
 		} else {
 			c, err = db.GetCreditInfo(cxt, uidi)
 		}

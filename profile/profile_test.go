@@ -11,7 +11,7 @@ import (
 
 func TestGetCredit(t *testing.T) {
 	c := &http.Client{Timeout: 10 * time.Second}
-	m, err := GetCredit(context.Background(), 2999970, c)
+	m, err := GetCredit(context.Background(), "https://www.mcbbs.net/home.php?mod=space", 2999970, c)
 	if err != nil {
 		t.Fatal(err)
 	}
