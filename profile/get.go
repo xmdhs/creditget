@@ -13,7 +13,7 @@ import (
 
 func getName(d *goquery.Document) string {
 	f := d.Find("#ct div.bm_c h2:has(span:contains(UID))")
-	f.Find("span").Remove()
+	f.Find("*").Remove()
 	return strings.TrimSpace(f.Text())
 }
 
