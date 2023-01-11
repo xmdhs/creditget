@@ -1,8 +1,10 @@
-FROM golang:alpine
+FROM golang:alpine as builder
 
 RUN apk --no-cache add git ca-certificates
 
 WORKDIR /build
+
+COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o main -trimpath -ldflags "-w -s" ./server/
 
@@ -12,9 +14,9 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=0 /build/build/main .
+COPY --from=builder /build/build/main .
 
-ENV PORT ":8080"
+ENV PORT "8080"
 
 EXPOSE 8080
 
