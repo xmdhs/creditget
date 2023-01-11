@@ -10,14 +10,17 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o main -trimpath -ldflags "-w -s" ./serve
 
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+RUN set -ex \
+    &&  apk --no-cache add ca-certificates tzdata \
+    &&  mkdir /server \
+    &&  adduser -H -D server\
+    &&  chown -R server /server
 
-WORKDIR /root/
-
+USER server
+WORKDIR /server
 COPY --from=builder /build/main .
 
 ENV PORT "8080"
-
 EXPOSE 8080
 
 CMD ["./main"]
